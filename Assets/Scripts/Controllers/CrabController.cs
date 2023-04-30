@@ -65,8 +65,9 @@ public class CrabController : ActorComponent {
     public void StopEating() {
         isEating = false;
         if (target) {
-            if (eating <= 0) {
+            if (eating < 0) {
                 target.DestroyAndTryRespawn();
+                //SetTarget(actor.radar.GetNearestItem(ItemNames.Fish));
                 target = null;
             } else if (!target.hander) {
                 SetTarget(null);

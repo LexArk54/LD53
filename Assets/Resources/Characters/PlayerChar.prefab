@@ -70,7 +70,7 @@ PrefabInstance:
     - target: {fileID: 8090135804393167467, guid: 711f8e074ae2b9948b2ff7a1bfef8b0a,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 711f8e074ae2b9948b2ff7a1bfef8b0a, type: 3}
@@ -166,12 +166,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 181e2f62c4ed54d4eae95d4f51bd525e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  actor: {fileID: 0}
   sensivityScroll: 0.05
   zoom: 6
   zoomMin: 0.5
   zoomMax: 6
   zoomSens: 10
-  zoomDirection: {x: 0, y: 0.1, z: -1}
+  zoomDirection: {x: 0, y: 0.02, z: -1}
   allowFPV: 1
   collisionMask:
     serializedVersion: 2

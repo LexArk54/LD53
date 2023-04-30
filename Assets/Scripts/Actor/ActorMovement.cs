@@ -7,7 +7,6 @@ public class ActorMovement : ActorComponent {
 
     public Rigidbody rigidBody { get; private set; }
     private CapsuleCollider _collider;
-    public Vector3 velocity => rigidBody.velocity;
 
     public Vector3 groundNormal { get; private set; }
     public Vector3 groundNormalForward { get; private set; }
@@ -75,6 +74,17 @@ public class ActorMovement : ActorComponent {
         base.Init(actor);
         rigidBody = GetComponent<Rigidbody>();
         _collider = (CapsuleCollider)actor.model.collider;
+        actor.model.animator.SetFloat("speedFactor", 0);
+        actor.model.animator.SetBool("isCrouching", false);
+        actor.model.animator.SetBool("isFalling", false);
+        actor.model.animator.Play("Idle");
+    }
+
+    public void Stop() {
+        _inputMove = Vector3.zero;
+        _inputDirection = transform.forward;
+        rigidBody.velocity = Vector3.zero;
+        actor.model.animator.SetBool("isSprinting", false);
     }
 
     public void InputMove(Vector3 value) {
@@ -90,8 +100,11 @@ public class ActorMovement : ActorComponent {
 
     public void InputSprint() {
         if ((!isGrounded && !isAirSprinting) || actor.interact.crabInHands) return;
+        if (isCrouching) InputCrouch(false);
         sprintValue = maxSpeedValue;
         isSprinting = true;
+        actor.model.animator.SetBool("isSprinting", true);
+        actor.model.animator.Play("Sprint");
     }
 
     public void InputCrouch(bool isCrouching) {
@@ -102,6 +115,7 @@ public class ActorMovement : ActorComponent {
 
     public void InputJump() {
         if (isGrounded && !isSprinting) {
+            if (isCrouching) InputCrouch(false);
             isGrounded = false;
             isSliding = false;
             _SetFriction(0f);
@@ -124,6 +138,12 @@ public class ActorMovement : ActorComponent {
         rigidBody.useGravity = true;
         rigidBody.velocity = Vector3.zero;
         isAirSprinting = false;
+        if (!isGrounded && !isSliding) {
+            if (!GroundCast(out RaycastHit hit, 10f)) {
+                Stop();
+                actor.model.animator.Play("FallDeath");
+            }
+        }
     }
 
     protected void SprintToggler() {
@@ -134,6 +154,7 @@ public class ActorMovement : ActorComponent {
             }
             if (sprintValue <= 0 || _inputMove == Vector3.zero || sprintAir > airSprintTime) {
                 isSprinting = false;
+                actor.model.animator.SetBool("isSprinting", false);
                 sprintValue = 0;
                 if (isAirSprinting) {
                     AirSprintStop();
@@ -186,15 +207,18 @@ public class ActorMovement : ActorComponent {
         }
     }
 
+    public bool GroundCast(out RaycastHit hit, float distanceMod = 1) {
+        var startPos = transform.position + Vector3.up * _collider.radius * 2f;
+        float distance = groundCheckDistance + _collider.radius;
+        return Physics.SphereCast(startPos, _collider.radius - .01f, Vector3.down, out hit, distance * distanceMod, groundLayerMask);
+    }
+
     void GroundCheck() {
         if (_jumpGroundingDelay > 0) {
             _jumpGroundingDelay -= Time.fixedDeltaTime;
             return;
         }
-        var startPos = transform.position + Vector3.up * _collider.radius * 2f;
-        float distance = groundCheckDistance + _collider.radius;
-        if (isSprinting) distance *= 2f;
-        if (Physics.SphereCast(startPos, _collider.radius - .01f, Vector3.down, out RaycastHit hit, distance, groundLayerMask)) {
+        if (GroundCast(out RaycastHit hit, (isSprinting ? 2f : 1f))) {
             //if (Physics.BoxCast(collider.bounds.center, Vector3.one * (collider.radius - .001f), Vector3.down, out RaycastHit hit, Quaternion.identity, groundCheckDistance, groundLayerMask)) {
             groundNormal = hit.normal;
             groundAngle = Vector3.Angle(Vector3.up, groundNormal);

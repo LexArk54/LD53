@@ -36,6 +36,24 @@ public class PlayerController : ActorComponent {
 
     public void ResetObject() {
         actor.Init();
+        actor.model.animator.SetBool("crabInHands", false);
+        enabled = true;
+    }
+
+    public void Kill() {
+        actor.movement.Stop();
+        enabled = false;
+        UIManager.main.ScreenFade(() => {
+            ResetObject();
+        });
+    }
+
+    public void FallDeath() {
+        actor.movement.Stop();
+        enabled = false;
+        UIManager.main.ScreenFade(() => {
+            ResetObject();
+        });
     }
 
     private void OnEnable() {

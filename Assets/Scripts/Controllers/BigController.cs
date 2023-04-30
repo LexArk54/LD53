@@ -22,8 +22,8 @@ public class BigController : ActorComponent {
         Init(GetComponent<Actor>());
         actor.Init();
         radarRadus = actor.radar.GetRadius();
-        radarRadusDanger = radarRadus / 3f;
-        radarRadusWarning = radarRadusDanger * 2f;
+        radarRadusDanger = radarRadus / 4f;
+        radarRadusWarning = radarRadusDanger * 3f;
     }
 
     public void ResetObject() {
@@ -84,7 +84,8 @@ public class BigController : ActorComponent {
                     MoveTo(player.transform.position, false);
                 } else {
                     Debug.Log("kill");
-                    player.GetComponent<PlayerController>().ResetObject();
+                    var controller = player.GetComponent<PlayerController>();
+                    controller.Kill();
                     foreach (var a in actor.radar.actors) {
                         if (!a.isPlayer && (player.interact.crabInHands == null || player.interact.crabInHands.actor != a)) {
                             a.GetComponent<CrabController>().ResetObject();

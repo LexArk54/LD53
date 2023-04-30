@@ -151,7 +151,7 @@ MonoBehaviour:
   sprintAir: 0
   speedAcceleration: 15
   maxSpeedValue: 0.5
-  crouchSpeed: 3
+  crouchSpeed: 2
   runSpeed: 5
   sprintSpeed: 12
   jumpForce: 300
@@ -178,5 +178,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actor: {fileID: 0}
-  crabInHand: {fileID: 0}
+  crabInHands: {fileID: 0}
   itemInHand: {fileID: 0}
