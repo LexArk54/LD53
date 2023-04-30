@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : ActorComponent {
+public class PlayerController : ActorController {
 
     [Header("Camera Settings")]
     [SerializeField] private float sensivityScroll = 0.05f;
@@ -26,25 +26,32 @@ public class PlayerController : ActorComponent {
     public bool isTempFPV { get; private set; } = false;
 
 
-    public void Awake() {
+    public override void Awake() {
         cameraTransformZ = Camera.main.transform;
         cameraTransformV = cameraTransformZ.parent;
         cameraTransformH = cameraTransformV.parent;
-        Init(GetComponent<Actor>());
-        actor.Init();
+        base.Awake();
     }
 
-    public void ResetObject() {
-        actor.Init();
+    public override void ResetObject() {
+        base.ResetObject();
         actor.model.animator.SetBool("crabInHands", false);
         enabled = true;
     }
 
-    public void Kill() {
-        actor.movement.Stop();
+    public void Kill(Actor enemy) {
         enabled = false;
+        actor.isUnderControl = false;
+        if (enemy) {
+            var dir = transform.position - enemy.transform.position;
+            dir.y = 0;
+            transform.forward = dir;
+        }
+        actor.movement.Stop();
+        actor.model.animator.Play("Death");
         UIManager.main.ScreenFade(() => {
             ResetObject();
+            UIManager.main.ScreenShow();
         });
     }
 
@@ -53,6 +60,7 @@ public class PlayerController : ActorComponent {
         enabled = false;
         UIManager.main.ScreenFade(() => {
             ResetObject();
+            UIManager.main.ScreenShow();
         });
     }
 

@@ -155,7 +155,7 @@ MonoBehaviour:
   runSpeed: 5
   sprintSpeed: 12
   jumpForce: 300
-  airSprintTime: 2
+  airSprintTime: 3
   angularAxel: 0.2
   angular: 10
   speedModWithCrab: 0.7

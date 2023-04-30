@@ -17,29 +17,32 @@ public class Actor : ActorBase {
     public ActorRadar radar { get; private set; }
     public ActorInteractivity interact { get; private set; }
 
-    public bool isActive { get; set; } = true;
     public bool isHidden { get; private set; }
+    public bool isUnderControl { get; set; }
 
-    private void Awake() {
-        startPos = transform.position;
-        startRot = transform.rotation;
-    }
-
+    private bool _isInited = false;
     public void Init() {
-        transform.position = startPos;
-        transform.rotation = startRot;
-        audio = GetComponentInChildren<ActorAudio>();
-        model = GetComponentInChildren<ActorModel>();
-        movement = GetComponent<ActorMovement>();
-        //inventory = GetComponentInChildren<ActorInventory>();
-        radar = GetComponentInChildren<ActorRadar>();
-        interact = GetComponentInChildren<ActorInteractivity>();
+        if (!_isInited) {
+            startPos = transform.position;
+            startRot = transform.rotation;
+            audio = GetComponentInChildren<ActorAudio>();
+            model = GetComponentInChildren<ActorModel>();
+            movement = GetComponent<ActorMovement>();
+            //inventory = GetComponentInChildren<ActorInventory>();
+            radar = GetComponentInChildren<ActorRadar>();
+            interact = GetComponentInChildren<ActorInteractivity>();
+            _isInited = true;
+        } else {
+            transform.position = startPos;
+            transform.rotation = startRot;
+        }
         audio?.Init(this);
         model?.Init(this);
         movement?.Init(this);
         //inventory?.Init(this);
         radar?.Init(this);
         interact?.Init(this);
+        isUnderControl = true;
     }
 
     public void SetHidden(bool value) {

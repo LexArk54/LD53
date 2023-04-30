@@ -11,7 +11,7 @@ public class UIManager : MonoBehaviour {
     public UISettings settings;
     public UIInventory inventory;
     public Image fader;
-    public float faderSpeed = 10f;
+    public float screenFadeSpeed = 0.01f;
 
     private void Awake() {
         main = this;
@@ -46,7 +46,7 @@ public class UIManager : MonoBehaviour {
         yield return new WaitForSeconds(1f);
         while (c.a != to) {
             yield return new WaitForFixedUpdate();
-            c.a = Mathf.MoveTowards(c.a, to, faderSpeed);
+            c.a = Mathf.MoveTowards(c.a, to, screenFadeSpeed);
             fader.color = c;
         }
         fader.gameObject.SetActive(false);

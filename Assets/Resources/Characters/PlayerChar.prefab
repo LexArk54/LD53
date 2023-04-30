@@ -81,6 +81,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4189745225923969030, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
+        type: 3}
+      propertyPath: angularModWithSprint
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 6613812049375100863, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
       propertyPath: isPlayer

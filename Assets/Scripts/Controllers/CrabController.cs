@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CrabController : ActorComponent {
+public class CrabController : ActorController {
 
     public Item target;
     public float targetDistance;
@@ -22,19 +22,14 @@ public class CrabController : ActorComponent {
 
     NavMeshPath path;
 
-    public void Awake() {
-        Init(GetComponent<Actor>());
-        actor.Init();
-    }
-
-    public void ResetObject() {
+    public override void ResetObject() {
         eating = 0;
         isEating = false;
         isFollowing = false;
         hander = null;
         target = null;
         SetInHands(null);
-        actor.Init();
+        base.ResetObject();
     }
 
     public void SetTarget(Item target) {

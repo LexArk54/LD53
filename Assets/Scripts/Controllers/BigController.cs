@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BigController : ActorComponent {
+public class BigController : ActorController {
 
     public Actor player;
     public bool isFollowing;
@@ -18,18 +18,17 @@ public class BigController : ActorComponent {
 
     NavMeshPath path;
 
-    public void Awake() {
-        Init(GetComponent<Actor>());
-        actor.Init();
+    public override void Awake() {
+        base.Awake();
         radarRadus = actor.radar.GetRadius();
         radarRadusDanger = radarRadus / 4f;
         radarRadusWarning = radarRadusDanger * 3f;
     }
 
-    public void ResetObject() {
+    public override void ResetObject() {
         player = null;
         isFollowing = false;
-        actor.Init();
+        base.ResetObject();
     }
 
     private void OnEnable() {
@@ -56,7 +55,7 @@ public class BigController : ActorComponent {
     }
 
     private void FixedUpdate() {
-        if (player) {
+        if (player && player.isUnderControl) {
             if (!isFollowing) {
                 var directionToPlayer = player.transform.position - transform.position;
                 var distance = directionToPlayer.magnitude;
@@ -83,9 +82,8 @@ public class BigController : ActorComponent {
                 } else if (Vector3.Distance(transform.position, player.transform.position) > attackDistance) {
                     MoveTo(player.transform.position, false);
                 } else {
-                    Debug.Log("kill");
                     var controller = player.GetComponent<PlayerController>();
-                    controller.Kill();
+                    controller.Kill(actor);
                     foreach (var a in actor.radar.actors) {
                         if (!a.isPlayer && (player.interact.crabInHands == null || player.interact.crabInHands.actor != a)) {
                             a.GetComponent<CrabController>().ResetObject();

@@ -13,6 +13,7 @@ public class ActorMovement : ActorComponent {
     public float groundAngle { get; private set; }
 
     private float _slidingPrevPos = 0;
+    [HideInInspector] public Vector3 lastGroundPos;
 
 
 
@@ -77,6 +78,7 @@ public class ActorMovement : ActorComponent {
         actor.model.animator.SetFloat("speedFactor", 0);
         actor.model.animator.SetBool("isCrouching", false);
         actor.model.animator.SetBool("isFalling", false);
+        actor.model.animator.SetBool("isSprinting", false);
         actor.model.animator.Play("Idle");
     }
 
@@ -93,7 +95,6 @@ public class ActorMovement : ActorComponent {
     }
 
     public void InputDirection(Vector3 value) {
-        if (isAirSprinting) return;
         if (_inputDirection == value) return;
         _inputDirection = value;
     }
@@ -103,8 +104,10 @@ public class ActorMovement : ActorComponent {
         if (isCrouching) InputCrouch(false);
         sprintValue = maxSpeedValue;
         isSprinting = true;
-        actor.model.animator.SetBool("isSprinting", true);
-        actor.model.animator.Play("Sprint");
+        if (speedFactor > 0) {
+            actor.model.animator.SetBool("isSprinting", true);
+            actor.model.animator.Play("Sprint");
+        }
     }
 
     public void InputCrouch(bool isCrouching) {
@@ -131,6 +134,12 @@ public class ActorMovement : ActorComponent {
         var v = rigidBody.velocity;
         v.y = 0;
         rigidBody.velocity = v;
+        v = _targetVelocity;
+        v.y = 0;
+        _targetVelocity = v;
+        v = transform.position;
+        v.y = lastGroundPos.y;
+        transform.position = v;
         isAirSprinting = true;
     }
     protected void AirSprintStop() {
@@ -196,7 +205,10 @@ public class ActorMovement : ActorComponent {
         velocity.y = 0;
         speedFactor = Mathf.Clamp(velocity.magnitude, 0, sprintSpeed) / runSpeed;
         float maxSpeed = GetActualSpeedMax();
-        if (isGrounded) {
+        if (isAirSprinting) {
+            _targetVelocity = _inputMove * maxSpeed;
+            rigidBody.AddForce((_targetVelocity - rigidBody.velocity) * speedAcceleration);
+        } else if (isGrounded) {
             groundNormalForward = Vector3.ProjectOnPlane(groundNormal, Vector3.Cross(_inputMove, Vector3.up));
             _targetVelocity = Vector3.ProjectOnPlane(_inputMove, groundNormalForward).normalized * _inputMove.magnitude * maxSpeed;
             rigidBody.AddForce((_targetVelocity - rigidBody.velocity) * speedAcceleration);
@@ -234,6 +246,9 @@ public class ActorMovement : ActorComponent {
             } else {
                 _SetFriction(Mathf.Clamp01(groundAngle / slideLimit - _inputMove.magnitude) * 5f);
                 _TryGround();
+                if (!isAirSprinting) {
+                    lastGroundPos = transform.position;
+                }
             }
         } else {
             if (isGrounded || isSliding) {
@@ -253,6 +268,9 @@ public class ActorMovement : ActorComponent {
             isSliding = false;
             isGrounded = true;
             actor.model.animator.SetBool("isFalling", false);
+            if (isAirSprinting) {
+                AirSprintStop();
+            }
         }
     }
 

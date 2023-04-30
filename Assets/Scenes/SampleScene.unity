@@ -1501,6 +1501,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6509661440551131440, guid: d86515f4906cc8c439cb545d059d31f8,
+        type: 3}
+      propertyPath: airSprintTime
+      value: 3000
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d86515f4906cc8c439cb545d059d31f8, type: 3}
 --- !u!1 &661720180
@@ -1906,7 +1911,7 @@ MonoBehaviour:
   settings: {fileID: 1991255665}
   inventory: {fileID: 1061429986}
   fader: {fileID: 1942368896}
-  faderSpeed: 0.005
+  screenFadeSpeed: 0.01
 --- !u!1001 &788790448
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2221,7 +2226,7 @@ GameObject:
   - component: {fileID: 900035975}
   - component: {fileID: 900035974}
   - component: {fileID: 900035973}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FallDeathTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}

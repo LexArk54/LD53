@@ -9,7 +9,11 @@ public class DeathTrigger : MonoBehaviour {
             var actor = other.GetComponentInParent<Actor>();
             if (actor.isPlayer) {
                 actor.GetComponent<PlayerController>().FallDeath();
+            } else {
+                actor.GetComponent<ActorController>().ResetObject();
             }
+        } else if (other.tag == Tag.Item) {
+            other.GetComponent<Item>().DestroyAndTryRespawn(true);
         }
     }
 
