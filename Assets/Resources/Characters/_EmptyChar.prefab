@@ -126,7 +126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 0}
-  isPlayer: 0
+  controller: {fileID: 0}
   startPos: {x: 0, y: 0, z: 0}
   startRot: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &4189745225923969030
@@ -142,11 +142,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actor: {fileID: 0}
+  lastGroundPos: {x: 0, y: 0, z: 0}
   isGrounded: 0
   isCrouching: 0
   isSprinting: 0
   isAirSprinting: 0
   isSliding: 0
+  isSwiming: 0
   sprintValue: 0
   sprintAir: 0
   speedAcceleration: 15
@@ -162,7 +164,7 @@ MonoBehaviour:
   angularModWithSprint: 0.2
   groundLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 3089
   groundCheckDistance: 0.08
   slideLimit: 45
 --- !u!114 &-885220289384143885

@@ -9,7 +9,6 @@ public class UIManager : MonoBehaviour {
     public static UIManager main;
 
     public UISettings settings;
-    public UIInventory inventory;
     public Image fader;
     public float screenFadeSpeed = 0.01f;
 
@@ -18,16 +17,12 @@ public class UIManager : MonoBehaviour {
         ScreenShow();
     }
 
-    public void ToggleInventory() {
-        inventory.gameObject.SetActive(!inventory.gameObject.activeSelf);
-    }
-
     public void TogglePause() {
         settings.gameObject.SetActive(!settings.gameObject.activeSelf);
     }
 
     public bool hasActiveElement() {
-        return inventory.gameObject.activeSelf || settings.gameObject.activeSelf;
+        return settings.gameObject.activeSelf;
     }
 
     public void ScreenShow(Action callback = null) {
@@ -51,6 +46,47 @@ public class UIManager : MonoBehaviour {
         }
         fader.gameObject.SetActive(false);
         callback?.Invoke();
+    }
+
+    /// <summary>
+    /// 0 - after start delay
+    /// 1 - after on target
+    /// 2 - after freeze
+    /// 3 - after comeback
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="startDelay"></param>
+    /// <param name="flowDuration"></param>
+    /// <param name="freezeDuration"></param>
+    /// <param name="callback"></param>
+    public void CameraFlow(Transform target, float startDelay, float flowDuration, float freezeDuration, Action<int> callback) {
+        StartCoroutine(_CameraFlowIE(target, startDelay, flowDuration, freezeDuration, callback));
+    }
+    IEnumerator _CameraFlowIE(Transform target, float startDelay, float flowDuration, float freezeDuration, Action<int> callback) {
+        var camTransform = Camera.main.transform;
+        var sourcePos = camTransform.position;
+        var sourceRot = camTransform.rotation;
+        var timeSpeed = flowDuration / Vector3.Distance(sourcePos, target.position);
+        var timer = 0f;
+        yield return new WaitForSeconds(startDelay);
+        callback?.Invoke(0);
+        while (timer < flowDuration) {
+            timer += Time.deltaTime;
+            camTransform.position = Vector3.Lerp(sourcePos, target.position, timer);
+            camTransform.rotation = Quaternion.Lerp(sourceRot, target.rotation, timer);
+            yield return new WaitForEndOfFrame();
+        }
+        callback?.Invoke(1);
+        yield return new WaitForSeconds(freezeDuration);
+        callback?.Invoke(2);
+        timer = 0f;
+        while (timer < flowDuration) {
+            timer += Time.deltaTime;
+            camTransform.position = Vector3.Lerp(target.position, sourcePos, timer);
+            camTransform.rotation = Quaternion.Lerp(target.rotation, sourceRot, timer);
+            yield return new WaitForEndOfFrame();
+        }
+        callback?.Invoke(3);
     }
 
 }

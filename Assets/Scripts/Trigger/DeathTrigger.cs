@@ -13,7 +13,7 @@ public class DeathTrigger : MonoBehaviour {
                 actor.GetComponent<ActorController>().ResetObject();
             }
         } else if (other.tag == Tag.Item) {
-            other.GetComponent<Item>().DestroyAndTryRespawn(true);
+            other.GetComponentInParent<Item>().DestroyAndTryRespawn(true);
         }
     }
 

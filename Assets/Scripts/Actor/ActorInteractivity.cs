@@ -59,9 +59,11 @@ public class ActorInteractivity : ActorComponent {
             if (actorBase is Item) {
                 var item = (Item)actorBase;
                 if (item.CanTake(actor)) {
-                    TakeItem(item);
+                    StartCoroutine(_TakeItem(item));
                 } else if (item.CanUse(actor)) {
                     item.OnUse(actor);
+                    transform.forward = (item.transform.position - transform.position).SetY();
+                    actor.model.animator.Play("Kick");
                 }
             } else {
                 var crab = actorBase.GetComponent<CrabController>();
@@ -70,6 +72,15 @@ public class ActorInteractivity : ActorComponent {
                 }
             }
         }
+    }
+
+    IEnumerator _TakeItem(Item item) {
+        actor.controller.Pause();
+        actor.model.animator.SetTrigger("PickUp");
+        yield return new WaitForSeconds(.5f);
+        TakeItem(item);
+        yield return new WaitForSeconds(.5f);
+        actor.controller.Play();
     }
 
     public void InputDrop() {

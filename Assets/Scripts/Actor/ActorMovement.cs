@@ -30,6 +30,7 @@ public class ActorMovement : ActorComponent {
     public bool isSprinting = false;
     public bool isAirSprinting = false;
     public bool isSliding = false;
+    public bool isSwiming = false;
     public float sprintValue;
     public float sprintAir;
     public bool isMoving => _targetVelocity != Vector3.zero;
@@ -37,7 +38,8 @@ public class ActorMovement : ActorComponent {
     [Header("Характеристики")]
     public float speedAcceleration = 15f;
     public float maxSpeedValue = .3f;
-    public float crouchSpeed = 3f;
+    public float crouchSpeed = 2f;
+    public float swimSpeed = 3.5f;
     public float runSpeed = 5f;
     public float sprintSpeed = 12f;
     public float jumpForce = 300f;
@@ -58,7 +60,9 @@ public class ActorMovement : ActorComponent {
 
     public float GetActualSpeedMax() {
         float speed;
-        if (isSprinting) {
+        if (isSwiming) {
+            speed = swimSpeed;
+        } else if (isSprinting) {
             speed = sprintSpeed;
         } else if (isCrouching) {
             speed = crouchSpeed;
@@ -75,10 +79,17 @@ public class ActorMovement : ActorComponent {
         base.Init(actor);
         rigidBody = GetComponent<Rigidbody>();
         _collider = (CapsuleCollider)actor.model.collider;
-        actor.model.animator.SetFloat("speedFactor", 0);
-        actor.model.animator.SetBool("isCrouching", false);
+        Stop();
+        if (isCrouching) {
+            InputCrouch(false);
+        }
+        if (isSwiming) {
+            StopSwim();
+        }
+        if (isSprinting) {
+            StopSprint();
+        }
         actor.model.animator.SetBool("isFalling", false);
-        actor.model.animator.SetBool("isSprinting", false);
         actor.model.animator.Play("Idle");
     }
 
@@ -86,6 +97,7 @@ public class ActorMovement : ActorComponent {
         _inputMove = Vector3.zero;
         _inputDirection = transform.forward;
         rigidBody.velocity = Vector3.zero;
+        actor.model.animator.SetFloat("speedFactor", 0);
         actor.model.animator.SetBool("isSprinting", false);
     }
 
@@ -99,17 +111,6 @@ public class ActorMovement : ActorComponent {
         _inputDirection = value;
     }
 
-    public void InputSprint() {
-        if ((!isGrounded && !isAirSprinting) || actor.interact.crabInHands) return;
-        if (isCrouching) InputCrouch(false);
-        sprintValue = maxSpeedValue;
-        isSprinting = true;
-        if (speedFactor > 0) {
-            actor.model.animator.SetBool("isSprinting", true);
-            actor.model.animator.Play("Sprint");
-        }
-    }
-
     public void InputCrouch(bool isCrouching) {
         if (!isGrounded || isSprinting) return;
         this.isCrouching = isCrouching;
@@ -119,6 +120,7 @@ public class ActorMovement : ActorComponent {
     public void InputJump() {
         if (isGrounded && !isSprinting) {
             if (isCrouching) InputCrouch(false);
+            if (isSwiming) StopSwim();
             isGrounded = false;
             isSliding = false;
             _SetFriction(0f);
@@ -131,18 +133,12 @@ public class ActorMovement : ActorComponent {
     protected void AirSprintStart() {
         sprintAir = 0;
         rigidBody.useGravity = false;
-        var v = rigidBody.velocity;
-        v.y = 0;
-        rigidBody.velocity = v;
-        v = _targetVelocity;
-        v.y = 0;
-        _targetVelocity = v;
-        v = transform.position;
-        v.y = lastGroundPos.y;
-        transform.position = v;
+        rigidBody.velocity = rigidBody.velocity.SetY();
+        _targetVelocity = _targetVelocity.SetY();
+        transform.position = transform.position.SetY(lastGroundPos.y);
         isAirSprinting = true;
     }
-    protected void AirSprintStop() {
+    protected void StopAirSprint() {
         sprintAir = 0;
         rigidBody.useGravity = true;
         rigidBody.velocity = Vector3.zero;
@@ -155,6 +151,19 @@ public class ActorMovement : ActorComponent {
         }
     }
 
+    public void InputSprint() {
+        if (isSwiming || (!isGrounded && !isAirSprinting) || actor.interact.crabInHands) return;
+        if (isCrouching) InputCrouch(false);
+        sprintValue = maxSpeedValue;
+        if (!isSprinting) {
+            isSprinting = true;
+            if (speedFactor > .1f) {
+                actor.model.animator.SetBool("isSprinting", true);
+                actor.model.animator.Play("Sprint");
+            }
+        }
+    }
+
     protected void SprintToggler() {
         if (isSprinting) {
             sprintValue -= Time.fixedDeltaTime;
@@ -162,14 +171,37 @@ public class ActorMovement : ActorComponent {
                 sprintAir += Time.fixedDeltaTime;
             }
             if (sprintValue <= 0 || _inputMove == Vector3.zero || sprintAir > airSprintTime) {
-                isSprinting = false;
-                actor.model.animator.SetBool("isSprinting", false);
-                sprintValue = 0;
-                if (isAirSprinting) {
-                    AirSprintStop();
-                }
+                StopSprint();
             }
         }
+    }
+
+    protected void StopSprint() {
+        isSprinting = false;
+        actor.model.animator.SetBool("isSprinting", false);
+        sprintValue = 0;
+        if (isAirSprinting) {
+            StopAirSprint();
+        }
+    }
+
+    protected void StartSwim() {
+        isGrounded = true;
+        if (isSprinting) {
+            StopSprint();
+        }
+        if (isCrouching) {
+            InputCrouch(false);
+        }
+        actor.interact.DropCrab();
+        isSwiming = true;
+        actor.model.animator.SetBool("isFalling", false);
+        actor.model.animator.SetBool("isSwiming", true);
+    }
+
+    protected void StopSwim() {
+        isSwiming = false;
+        actor.model.animator.SetBool("isSwiming", false);
     }
 
     private void LateUpdate() {
@@ -201,9 +233,7 @@ public class ActorMovement : ActorComponent {
         //    speedFactor = Mathf.MoveTowards(speedFactor, 0, 5f * Time.fixedDeltaTime);
         //} else {
         //}
-        var velocity = rigidBody.velocity;
-        velocity.y = 0;
-        speedFactor = Mathf.Clamp(velocity.magnitude, 0, sprintSpeed) / runSpeed;
+        speedFactor = Mathf.Clamp(rigidBody.velocity.SetY().magnitude, 0, sprintSpeed) / runSpeed;
         float maxSpeed = GetActualSpeedMax();
         if (isAirSprinting) {
             _targetVelocity = _inputMove * maxSpeed;
@@ -231,6 +261,19 @@ public class ActorMovement : ActorComponent {
             return;
         }
         if (GroundCast(out RaycastHit hit, (isSprinting ? 2f : 1f))) {
+            if (!isAirSprinting) {
+                if (hit.collider.tag == Tag.Water) {
+                    if (isSprinting) {
+                        AirSprintStart();
+                        return;
+                    }
+                    if (!isSwiming) {
+                        StartSwim();
+                    }
+                } else if (isSwiming) {
+                    StopSwim();
+                }
+            }
             //if (Physics.BoxCast(collider.bounds.center, Vector3.one * (collider.radius - .001f), Vector3.down, out RaycastHit hit, Quaternion.identity, groundCheckDistance, groundLayerMask)) {
             groundNormal = hit.normal;
             groundAngle = Vector3.Angle(Vector3.up, groundNormal);
@@ -255,7 +298,7 @@ public class ActorMovement : ActorComponent {
                 isGrounded = false;
                 isSliding = false;
                 _SetFriction(0f);
-                if (isSprinting) {
+                if (isSprinting && !isAirSprinting) {
                     AirSprintStart();
                 }
             }
@@ -269,7 +312,7 @@ public class ActorMovement : ActorComponent {
             isGrounded = true;
             actor.model.animator.SetBool("isFalling", false);
             if (isAirSprinting) {
-                AirSprintStop();
+                StopAirSprint();
             }
         }
     }

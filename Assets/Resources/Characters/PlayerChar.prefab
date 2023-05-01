@@ -181,7 +181,7 @@ MonoBehaviour:
   allowFPV: 1
   collisionMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1041
 --- !u!4 &1458580606601718283 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8381175644629316413, guid: 4638e1184b665f04a8ca3f6bfdc38be6,

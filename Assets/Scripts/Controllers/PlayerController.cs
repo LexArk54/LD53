@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,29 +36,30 @@ public class PlayerController : ActorController {
 
     public override void ResetObject() {
         base.ResetObject();
+        actor.gameObject.SetActive(false);
+        actor.gameObject.SetActive(true);
         actor.model.animator.SetBool("crabInHands", false);
-        enabled = true;
+        Play();
     }
 
-    public void Kill(Actor enemy) {
-        enabled = false;
-        actor.isUnderControl = false;
+    public void Kill(Actor enemy, Action callback = null) {
         if (enemy) {
-            var dir = transform.position - enemy.transform.position;
-            dir.y = 0;
-            transform.forward = dir;
+            transform.forward = (enemy.transform.position - transform.position).SetY().normalized;
         }
-        actor.movement.Stop();
+        Pause();
+        actor.SetIsDead(true);
         actor.model.animator.Play("Death");
         UIManager.main.ScreenFade(() => {
             ResetObject();
+            callback?.Invoke();
             UIManager.main.ScreenShow();
         });
     }
 
     public void FallDeath() {
-        actor.movement.Stop();
-        enabled = false;
+        Pause();
+        actor.SetIsDead(true);
+        actor.model.animator.Play("FallDeath");
         UIManager.main.ScreenFade(() => {
             ResetObject();
             UIManager.main.ScreenShow();
@@ -85,14 +87,17 @@ public class PlayerController : ActorController {
     }
 
     private void Crouch_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+        if (isPaused) return;
         actor.movement.InputCrouch(!actor.movement.isCrouching);
     }
 
     private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+        if (isPaused) return;
         actor.movement.InputJump();
     }
 
     private void Sprint_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+        if (isPaused) return;
         actor.movement.InputSprint();
     }
 
@@ -105,11 +110,18 @@ public class PlayerController : ActorController {
         }
     }
 
-    private void Use_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) => actor.interact.InputUse();
-    private void Drop_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) => actor.interact.InputDrop();
+    private void Use_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+        if (isPaused) return;
+        actor.interact.InputUse();
+    }
+    private void Drop_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+        if (isPaused) return;
+        actor.interact.InputDrop();
+    }
 
     private void Update() {
         CameraControl();
+        if (isPaused) return;
         CharacterControl();
     }
 
@@ -166,7 +178,7 @@ public class PlayerController : ActorController {
             float tempZoom = zoom;
             RaycastHit hit;
             var castDir = cameraTransformV.TransformDirection(zoomDirection).normalized;
-            if (Physics.Raycast(cameraTransformV.position, castDir, out hit, zoom, collisionMask)) {
+            if (Physics.SphereCast(cameraTransformV.position, .1f, castDir, out hit, zoom, collisionMask)) {
                 tempZoom = hit.distance;
             }
             if (allowFPV) {

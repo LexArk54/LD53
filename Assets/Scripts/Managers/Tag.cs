@@ -11,5 +11,6 @@ public sealed class Tag {
     public static string GameController { get; } = "GameController";
     public static string Actor { get; } = "Actor";
     public static string Item { get; } = "Item";
+    public static string Water { get; } = "Water";
 
 }

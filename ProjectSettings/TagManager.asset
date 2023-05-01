@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Actor
   - Item
+  - Water
   layers:
   - Default
   - TransparentFX
@@ -17,7 +18,7 @@ TagManager:
   - Radar
   - Item
   - Trigger
-  - 
+  - Interactive
   - 
   - 
   - 

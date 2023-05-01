@@ -13,6 +13,8 @@ public static class Layer {
     public static int Actor { get; } = LayerMask.NameToLayer("Actor");
     public static int Radar { get; } = LayerMask.NameToLayer("Radar");
     public static int Item { get; } = LayerMask.NameToLayer("Item");
+    public static int Trigger { get; } = LayerMask.NameToLayer("Item");
+    public static int Interactive { get; } = LayerMask.NameToLayer("Interactive");
 
 
 
@@ -40,6 +42,12 @@ public static class Layer {
             Layer.Default,
             Layer.Actor,
         });
+
+    }
+
+    public sealed class NavMesh {
+
+        public const int PathFind = -1;
 
     }
 

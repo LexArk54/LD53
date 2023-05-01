@@ -11,10 +11,10 @@ public class AudioManager : MonoBehaviour {
 
     public AudioMixer mixer;
 
+    public AudioClipPreset mainMusicPreset;
     private AudioClipPreset currentMusicPreset;
     [SerializeField] private AudioSource musicSource;
     Coroutine changeMusicCoroutine;
-    public int index;
 
     public sealed class Name {
         public const string MasterVolume = "MasterVolume";
@@ -25,20 +25,7 @@ public class AudioManager : MonoBehaviour {
         public const string FXPitch = "FXPitch";
     }
 
-    public List<AudioClipPreset> presetsForTest;
-    [ContextMenu("ChangeTest")]
-    private void ChangeTest() {
-        index = presetsForTest.IndexOf(currentMusicPreset);
-        index++;
-        if (index >= presetsForTest.Count) {
-            index = -1;
-            PlayMusic(null, 2f);
-        } else {
-            PlayMusic(presetsForTest[index], 2f);
-        }
-    }
-
-    public void PlayMusic(AudioClipPreset preset, float changeDuration = .1f) {
+    public void PlayMusic(AudioClipPreset preset, float changeDuration = 2f) {
         if (changeMusicCoroutine != null) {
             StopCoroutine(changeMusicCoroutine);
             changeMusicCoroutine = null;
@@ -72,6 +59,10 @@ public class AudioManager : MonoBehaviour {
 
     private void Awake() {
         main = this;
+    }
+
+    private void Start() {
+        PlayMusic(mainMusicPreset);
     }
 
     public void SaveSettings() {

@@ -24,10 +24,10 @@ public class CrabController : ActorController {
 
     public override void ResetObject() {
         eating = 0;
-        isEating = false;
         isFollowing = false;
         hander = null;
         target = null;
+        StopEating();
         SetInHands(null);
         base.ResetObject();
     }
@@ -55,15 +55,16 @@ public class CrabController : ActorController {
         actor.movement.InputMove(Vector3.zero);
         eating = eatingTime;
         isEating = true;
+        actor.model.animator.SetBool("isEating", true);
     }
 
     public void StopEating() {
         isEating = false;
+        actor.model.animator.SetBool("isEating", false);
         if (target) {
             if (eating < 0) {
                 target.DestroyAndTryRespawn();
-                //SetTarget(actor.radar.GetNearestItem(ItemNames.Fish));
-                target = null;
+                SetTarget(actor.radar.GetNearestItem(ItemNames.Fish));
             } else if (!target.hander) {
                 SetTarget(null);
             }
@@ -79,6 +80,7 @@ public class CrabController : ActorController {
             actor.movement.rigidBody.useGravity = false;
             actor.movement.rigidBody.isKinematic = true;
             actor.movement.enabled = false;
+            actor.movement.Stop();
             SetTarget(null);
             Update();
         } else {
@@ -93,9 +95,7 @@ public class CrabController : ActorController {
     private void FixedUpdate() {
         if (hander) return;
         if (target) {
-            var dir = target.transform.position - transform.position;
-            dir.y = 0;
-            targetDistance = dir.magnitude;
+            targetDistance = (target.transform.position - transform.position).SetY().magnitude;
         }
         if (isEating) {
             if (!target) {
@@ -120,9 +120,7 @@ public class CrabController : ActorController {
                     }
                 }
             } else {
-                var dir = target.transform.position - transform.position;
-                dir.y = 0;
-                actor.movement.InputDirection(dir);
+                actor.movement.InputDirection((target.transform.position - transform.position).SetY());
             }
             return;
         }
@@ -130,16 +128,15 @@ public class CrabController : ActorController {
 
     private void MoveTo(Vector3 pos, bool smooth) {
         path = new NavMeshPath();
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5f, NavMesh.AllAreas)) {
-            NavMesh.CalculatePath(hit.position, pos, -1, path);
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5f, Layer.NavMesh.PathFind)) {
+            NavMesh.CalculatePath(hit.position, pos, Layer.NavMesh.PathFind, path);
         }
         Vector3 moveDirection;
         if (path.corners.Length == 0) {
-            moveDirection = pos - transform.position;
+            moveDirection = (pos - transform.position).SetY();
         } else {
-            moveDirection = path.corners[1] - transform.position;
+            moveDirection = (path.corners[1] - transform.position).SetY();
         }
-        moveDirection.y = 0;
         actor.movement.InputDirection(moveDirection.normalized);
         if (smooth) {
             moveDirection = transform.forward * (targetDistance / actor.movement.runSpeed);

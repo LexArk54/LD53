@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class Actor : ActorBase {
 
-    public bool isPlayer = false;
+    public bool isPlayer => controller is PlayerController;
+    public ActorController controller;
 
     [HideInInspector] public Vector3 startPos;
     [HideInInspector] public Quaternion startRot;
@@ -17,12 +18,13 @@ public class Actor : ActorBase {
     public ActorRadar radar { get; private set; }
     public ActorInteractivity interact { get; private set; }
 
-    public bool isHidden { get; private set; }
+    public bool isDead { get; private set; }
     public bool isUnderControl { get; set; }
 
     private bool _isInited = false;
-    public void Init() {
+    public void Init(ActorController controller) {
         if (!_isInited) {
+            this.controller = controller;
             startPos = transform.position;
             startRot = transform.rotation;
             audio = GetComponentInChildren<ActorAudio>();
@@ -45,8 +47,8 @@ public class Actor : ActorBase {
         isUnderControl = true;
     }
 
-    public void SetHidden(bool value) {
-        isHidden = value;
+    public void SetIsDead(bool value) {
+        isDead = value;
         //if (idea) {
         //    var renders = idea.GetComponentsInChildren<Renderer>();
         //    foreach (var render in renders) {

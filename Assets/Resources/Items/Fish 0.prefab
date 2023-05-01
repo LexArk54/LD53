@@ -65,7 +65,7 @@ PrefabInstance:
     - target: {fileID: 4287610324674061091, guid: 97b68ba4d05e8564fbe23cb38e54d354,
         type: 3}
       propertyPath: m_Name
-      value: Fish
+      value: Fish 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97b68ba4d05e8564fbe23cb38e54d354, type: 3}
@@ -81,7 +81,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 6538328235974443472}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &-3710354421658632878
+--- !u!114 &1042420162603751247
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -90,11 +90,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 7006589728184558323}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b5f89cd137295a48b1dc545732de5f9, type: 3}
+  m_Script: {fileID: 11500000, guid: 480063860bbb36a43a543d4f62eacd67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: eb61be9aabb279945972391b68db76c3, type: 2}
   isTakeable: 1
+  rigidBody: {fileID: 0}
+  isRespawner: 0
+  respawnDelay: -1
+  hander: {fileID: 0}
 --- !u!1001 &7964005617476920739
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -55,7 +55,7 @@ public class BigController : ActorController {
     }
 
     private void FixedUpdate() {
-        if (player && player.isUnderControl) {
+        if (player && !player.isDead) {
             if (!isFollowing) {
                 var directionToPlayer = player.transform.position - transform.position;
                 var distance = directionToPlayer.magnitude;
@@ -82,19 +82,26 @@ public class BigController : ActorController {
                 } else if (Vector3.Distance(transform.position, player.transform.position) > attackDistance) {
                     MoveTo(player.transform.position, false);
                 } else {
-                    var controller = player.GetComponent<PlayerController>();
-                    controller.Kill(actor);
+                    List<CrabController> crabs = new List<CrabController>();
                     foreach (var a in actor.radar.actors) {
-                        if (!a.isPlayer && (player.interact.crabInHands == null || player.interact.crabInHands.actor != a)) {
-                            a.GetComponent<CrabController>().ResetObject();
+                        if (!a.isPlayer) {
+                            var crab = a.GetComponent<CrabController>();
+                            if (crab) {
+                                crabs.Add(crab);
+                            }
                         }
                     }
-                    ResetObject();
+                    var controller = player.GetComponent<PlayerController>();
+                    controller.Kill(actor, () => {
+                        foreach (var crab in crabs) {
+                            crab.ResetObject();
+                        }
+                    });
                 }
                 return;
             }
         }
-        if (Vector3.Distance(transform.position, actor.startPos) > .3f) {
+        if (Vector3.Distance(transform.position, actor.startPos) > .2f) {
             MoveTo(actor.startPos, true);
         } else if (transform.position != actor.startPos) {
             transform.position = actor.startPos;
@@ -105,20 +112,18 @@ public class BigController : ActorController {
 
     private void MoveTo(Vector3 pos, bool smooth) {
         path = new NavMeshPath();
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5f, NavMesh.AllAreas)) {
-            NavMesh.CalculatePath(hit.position, pos, -1, path);
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5f, Layer.NavMesh.PathFind)) {
+            NavMesh.CalculatePath(hit.position, pos, Layer.NavMesh.PathFind, path);
         }
         Vector3 moveDirection;
         Vector3 destinationDirection;
         if (path.corners.Length == 0) {
-            moveDirection = pos - transform.position;
+            moveDirection = (pos - transform.position).SetY();
             destinationDirection = moveDirection;
         } else {
-            moveDirection = path.corners[1] - transform.position;
-            destinationDirection = pos - transform.position;
-            destinationDirection.y = 0;
+            moveDirection = (path.corners[1] - transform.position).SetY();
+            destinationDirection = (pos - transform.position).SetY();
         }
-        moveDirection.y = 0;
         actor.movement.InputDirection(moveDirection.normalized);
         if (smooth) {
             moveDirection = transform.forward * (destinationDirection.magnitude / actor.movement.runSpeed);

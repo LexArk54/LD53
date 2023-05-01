@@ -23,6 +23,11 @@ public static class VectorExtension {
         );
     }
 
+    public static Vector3 SetY(this Vector3 v, float y = 0) {
+        v.y = y;
+        return v;
+    }
+
     public static void SetDirection(this Transform t, Vector2 dir) {
         t.up = dir;
         if (t.eulerAngles.x != 0 || t.eulerAngles.y != 0)

@@ -14,16 +14,16 @@ public class ItemSlot {
 
 public class Item : ActorBase {
 
-    [SerializeField] private bool isTakeable = true;
+    public Actor hander;
+
+    [SerializeField] protected bool isTakeable = true;
 
     [HideInInspector] public Rigidbody rigidBody;
 
     [Header("Только на сцене")]
-    public bool isRespawner;
-    [SerializeField] private float respawnDelay = -1f;
+    [SerializeField] protected bool isRespawner;
+    [SerializeField] protected float respawnDelay = -1f;
     protected Item respawner;
-
-    public Actor hander;
 
     public virtual void Awake() {
         rigidBody = GetComponent<Rigidbody>();
