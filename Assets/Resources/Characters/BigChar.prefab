@@ -15,7 +15,12 @@ PrefabInstance:
     - target: {fileID: 4189745225923969030, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
       propertyPath: sprintSpeed
-      value: 12.1
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 4189745225923969030, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
+        type: 3}
+      propertyPath: airSprintTime
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4189745225923969030, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
@@ -27,6 +32,12 @@ PrefabInstance:
       propertyPath: m_ObstacleAvoidanceType
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6613812049375100863, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
+        type: 3}
+      propertyPath: data
+      value: 
+      objectReference: {fileID: 11400000, guid: 90b5000e55a9f1747bac02783393b059,
+        type: 2}
     - target: {fileID: 6613812049375100863, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
       propertyPath: isPlayer
@@ -125,13 +136,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actor: {fileID: 0}
   player: {fileID: 0}
+  isAlerted: 0
   isFollowing: 0
+  isGoingBack: 0
   angleView: 120
   attackDistance: 1.5
   followDistance: 20
   radarRadus: 0
   radarRadusWarning: 0
   radarRadusDanger: 0
+  viewCollisionMask:
+    serializedVersion: 2
+    m_Bits: 1025
 --- !u!1001 &7969135989345561674
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -147,7 +163,7 @@ PrefabInstance:
     - target: {fileID: 5152492536020765668, guid: 69fbbd08ed5c7d040baa83b9532699c9,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5433838359310518448, guid: 69fbbd08ed5c7d040baa83b9532699c9,
         type: 3}

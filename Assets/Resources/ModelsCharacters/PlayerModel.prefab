@@ -83,11 +83,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 3332709503153355682, guid: 0f3f691e54be569469d73209a3cae675,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 3374439755775675343, guid: 0f3f691e54be569469d73209a3cae675,
         type: 3}
       propertyPath: m_Height
@@ -354,6 +349,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e36e95687debef24da82bfa30d29a9cc,
+        type: 3}
+      propertyPath: m_TagString
+      value: Interactive
+      objectReference: {fileID: 0}
     - target: {fileID: 1082271958561512970, guid: e36e95687debef24da82bfa30d29a9cc,
         type: 3}
       propertyPath: m_Layer
@@ -416,16 +416,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 7075588153940595429}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b064151652c770743959cb9c12cc15b6, type: 3}
+  m_Script: {fileID: 11500000, guid: f18a6bca45e5cd149b12ff93176cc311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actor: {fileID: 0}
+  character: {fileID: 0}
   footAudioSource: {fileID: 5925156992155572455}
   headAudioSource: {fileID: 726733800825910097}
-  stepClips:
-  - {fileID: 11400000, guid: 6f7589cd86e5be546bc35777566aa02c, type: 2}
-  jumpClips:
-  - {fileID: 11400000, guid: 6f7589cd86e5be546bc35777566aa02c, type: 2}
+  stepClips: []
+  jumpClips: []
   layerMask:
     serializedVersion: 2
     m_Bits: 0

@@ -4,16 +4,22 @@ using UnityEngine;
 
 public class DeathTrigger : MonoBehaviour {
 
-    private void OnTriggerEnter(Collider other) {
-        if (other.tag == Tag.Actor) {
-            var actor = other.GetComponentInParent<Actor>();
-            if (actor.isPlayer) {
-                actor.GetComponent<PlayerController>().FallDeath();
+    public virtual void ResetObject() {
+
+    }
+
+    protected virtual void OnTriggerEnter(Collider other) {
+        if (other.tag == Tag.Interactive) {
+            var actor = other.GetComponentInParent<Interactive>();
+            if (actor.data.type == InteractData.Type.Character) {
+                if (actor.isPlayer) {
+                    actor.GetComponent<PlayerController>().FallDeath();
+                } else {
+                    actor.GetComponent<CharacterController>().ResetObject();
+                }
             } else {
-                actor.GetComponent<ActorController>().ResetObject();
+                actor.ResetObject();
             }
-        } else if (other.tag == Tag.Item) {
-            other.GetComponentInParent<Item>().DestroyAndTryRespawn(true);
         }
     }
 

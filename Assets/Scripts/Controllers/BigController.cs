@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BigController : ActorController {
+public class BigController : CharacterController {
 
-    public Actor player;
+    public Character player;
+    public bool isAlerted;
     public bool isFollowing;
+    public bool isGoingBack;
 
     [Header("Характеристики")]
     public float angleView = 140f;
@@ -16,122 +18,150 @@ public class BigController : ActorController {
     [ReadOnly] public float radarRadusWarning;
     [ReadOnly] public float radarRadusDanger;
 
-    NavMeshPath path;
+    [SerializeField] private LayerMask viewCollisionMask;
 
     public override void Awake() {
         base.Awake();
-        radarRadus = actor.radar.GetRadius();
+        radarRadus = character.radar.GetRadius();
         radarRadusDanger = radarRadus / 4f;
         radarRadusWarning = radarRadusDanger * 3f;
     }
 
     public override void ResetObject() {
         player = null;
+        isAlerted = false;
         isFollowing = false;
+        isGoingBack = false;
         base.ResetObject();
     }
 
     private void OnEnable() {
-        actor.radar.OnEnter += Radar_OnEnter;
-        actor.radar.OnExit += Radar_OnExit;
+        character.radar.OnEnter += Radar_OnEnter;
+        character.radar.OnExit += Radar_OnExit;
     }
 
     private void OnDisable() {
-        actor.radar.OnEnter -= Radar_OnEnter;
-        actor.radar.OnExit -= Radar_OnExit;
+        character.radar.OnEnter -= Radar_OnEnter;
+        character.radar.OnExit -= Radar_OnExit;
     }
 
-    private void Radar_OnEnter(Actor actor) {
+    private void Radar_OnEnter(Interactive actor) {
         if (actor.isPlayer) {
-            player = actor;
+            player = (Character)actor;
+            UIManager.main.SetEYE(IndicatorColor.Success);
         }
     }
 
-    private void Radar_OnExit(Actor actor) {
+    private void Radar_OnExit(Interactive actor) {
         if (actor.isPlayer) {
             player = null;
-            isFollowing = false;
+            UIManager.main.SetEYE(IndicatorColor.None);
         }
+    }
+
+
+    public bool TryAlert(Vector3 directionToPlayer, float distance) {
+        if (player) {
+            if (Physics.Raycast(character.model.headPoint.position, directionToPlayer, distance, viewCollisionMask)) {
+                UIManager.main.SetEYE(IndicatorColor.Warning);
+            } else {
+                Alert();
+                return true;
+            }
+        }
+        return false;
+    }
+    public void Alert() {
+        isAlerted = true;
+        if (player) {
+            UIManager.main.SetEYE(IndicatorColor.Danger);
+            if (isGoingBack) {
+                StopGoBack();
+                StartFollow();
+                return;
+            }
+        }
+        character.model.animator.Play("Roar");
+        StopAllCoroutines();
+        StartCoroutine(_StartFollowIE());
+    }
+
+    private IEnumerator _StartFollowIE() {
+        yield return new WaitForSeconds(.8f);
+        StartFollow();
+    }
+
+    public void StartFollow() {
+        isFollowing = true;
+    }
+
+    public void StopFollow() {
+        isFollowing = false;
+        StartGoBack();
+    }
+
+    public void StartGoBack() {
+        isGoingBack = true;
+        if (player) {
+            UIManager.main.SetEYE(IndicatorColor.Warning);
+        }
+    }
+
+    public void StopGoBack() {
+        isGoingBack = false;
     }
 
     private void FixedUpdate() {
-        if (player && !player.isDead) {
-            if (!isFollowing) {
-                var directionToPlayer = player.transform.position - transform.position;
+        if (!isAlerted) {
+            if (player && !player.isDead) {
+                var directionToPlayer = player.model.collider.bounds.center - character.model.headPoint.position;
                 var distance = directionToPlayer.magnitude;
                 if (distance < radarRadusDanger) {
-                    isFollowing = true;
-                    return;
+                    character.movement.InputDirection(directionToPlayer.SetY());
                 }
                 if (distance < radarRadusWarning) {
                     if (!player.movement.isCrouching) {
-                        isFollowing = true;
-                        return;
+                        TryAlert(directionToPlayer, distance);
+                        if (!isGoingBack) return;
                     }
-                    if (directionToPlayer.y < 4f) {
-                        directionToPlayer.y = 0;
-                        if (Vector3.Angle(transform.forward, directionToPlayer) < angleView) {
-                            isFollowing = true;
-                            return;
-                        }
+                    if (Vector3.Angle(transform.forward, directionToPlayer.SetY()) < angleView) {
+                        TryAlert(directionToPlayer, distance);
+                        if (!isGoingBack) return;
                     }
-                }
-            } else {
-                if (Vector3.Distance(transform.position, actor.startPos) > followDistance) {
-                    Radar_OnExit(player);
-                } else if (Vector3.Distance(transform.position, player.transform.position) > attackDistance) {
-                    MoveTo(player.transform.position, false);
+                    UIManager.main.SetEYE(IndicatorColor.Warning);
                 } else {
-                    List<CrabController> crabs = new List<CrabController>();
-                    foreach (var a in actor.radar.actors) {
-                        if (!a.isPlayer) {
-                            var crab = a.GetComponent<CrabController>();
-                            if (crab) {
-                                crabs.Add(crab);
-                            }
-                        }
-                    }
+                    UIManager.main.SetEYE(IndicatorColor.Success);
+                }
+                if (!isGoingBack) return;
+            }
+        }
+        if (isGoingBack) {
+            var distance = Vector3.Distance(transform.position, character.startPos);
+            if (isAlerted && distance < radarRadusWarning) {
+                isAlerted = false;
+            }
+            if (distance > .2f) {
+                character.movement.MoveTo(character.startPos, true);
+            } else {
+                transform.position = character.startPos;
+                character.movement.InputMove(Vector3.zero);
+                character.movement.InputDirection(character.startRot * Vector3.forward);
+                StopGoBack();
+            }
+        } else if (isFollowing) {
+            if (player && !player.isDead) {
+                if (Vector3.Distance(transform.position, character.startPos) > followDistance) {
+                    StopFollow();
+                } else if (Vector3.Distance(transform.position, player.transform.position) > attackDistance) {
+                    character.movement.MoveTo(player.transform.position, false);
+                } else {
                     var controller = player.GetComponent<PlayerController>();
-                    controller.Kill(actor, () => {
-                        foreach (var crab in crabs) {
-                            crab.ResetObject();
-                        }
-                    });
+                    controller.Kill(character);
+                    StopFollow();
                 }
                 return;
             }
         }
-        if (Vector3.Distance(transform.position, actor.startPos) > .2f) {
-            MoveTo(actor.startPos, true);
-        } else if (transform.position != actor.startPos) {
-            transform.position = actor.startPos;
-            actor.movement.InputMove(Vector3.zero);
-            actor.movement.InputDirection(actor.startRot * Vector3.forward);
-        }
-    }
-
-    private void MoveTo(Vector3 pos, bool smooth) {
-        path = new NavMeshPath();
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5f, Layer.NavMesh.PathFind)) {
-            NavMesh.CalculatePath(hit.position, pos, Layer.NavMesh.PathFind, path);
-        }
-        Vector3 moveDirection;
-        Vector3 destinationDirection;
-        if (path.corners.Length == 0) {
-            moveDirection = (pos - transform.position).SetY();
-            destinationDirection = moveDirection;
-        } else {
-            moveDirection = (path.corners[1] - transform.position).SetY();
-            destinationDirection = (pos - transform.position).SetY();
-        }
-        actor.movement.InputDirection(moveDirection.normalized);
-        if (smooth) {
-            moveDirection = transform.forward * (destinationDirection.magnitude / actor.movement.runSpeed);
-            actor.movement.InputMove(Vector3.ClampMagnitude(moveDirection, 1f));
-        } else {
-            actor.movement.InputMove(transform.forward);
-        }
-        actor.movement.InputSprint();
     }
 
 }

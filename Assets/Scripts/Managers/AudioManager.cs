@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-public class AudioManager : MonoBehaviour {
+public class AudioManager : Manager {
 
     public static AudioManager main;
 
@@ -57,8 +57,11 @@ public class AudioManager : MonoBehaviour {
         return Mathf.Log(value) * 20;
     }
 
-    private void Awake() {
-        main = this;
+    public override void Awake() {
+        base.Awake();
+        if (this.InitializeSingleton(ref main)) {
+
+        }
     }
 
     private void Start() {

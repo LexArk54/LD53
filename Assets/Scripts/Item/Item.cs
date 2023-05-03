@@ -7,64 +7,45 @@ using System;
 [Serializable]
 public class ItemSlot {
 
-    public ItemData data;
+    public InteractData data;
     public int count;
 
 }
 
-public class Item : ActorBase {
-
-    public Actor hander;
+public class Item : Interactive {
 
     [SerializeField] protected bool isTakeable = true;
 
+
     [HideInInspector] public Rigidbody rigidBody;
 
-    [Header("Только на сцене")]
-    [SerializeField] protected bool isRespawner;
-    [SerializeField] protected float respawnDelay = -1f;
-    protected Item respawner;
+    private Vector3 startPos;
+    private Quaternion startRot;
+    private bool isKinematic;
 
     public virtual void Awake() {
         rigidBody = GetComponent<Rigidbody>();
-        if (isRespawner) {
-            respawner = this;
-        }
+        startPos = transform.position;
+        startRot = transform.rotation;
+        isKinematic = rigidBody.isKinematic;
     }
 
-    public virtual bool CanUse(Actor actor) {
-        return true;
-    }
-    public virtual void OnUse(Actor actor) {
-
-    }
-    public virtual void OnRadarIn(Actor actor) {
-
-    }
-    public virtual void OnRadarOut(Actor actor) {
-
-    }
-    public virtual bool CanTake(Actor actor) {
+    public virtual bool CanTake(Character actor) {
         return isTakeable;
     }
-    public virtual Item OnTake(Actor actor) {
-        if (isRespawner) {
-            gameObject.SetActive(false);
-            var item = Instantiate(data.prefab, transform.position, transform.rotation);
-            item.isRespawner = false;
-            item.respawner = respawner;
-            return item.OnTake(actor);
-        } else {
-            hander = actor;
-            rigidBody.isKinematic = true;
-            rigidBody.useGravity = false;
-            return this;
-        }
+    public virtual Item OnTake(Character actor) {
+        hander = actor;
+        rigidBody.isKinematic = true;
+        rigidBody.velocity = Vector3.zero;
+        rigidBody.angularVelocity = Vector3.zero;
+        return this;
     }
-    public virtual void OnDrop(Actor actor) {
+    public virtual Item OnDrop(Character actor) {
         hander = null;
+        rigidBody.velocity = Vector3.zero;
+        rigidBody.angularVelocity = Vector3.zero;
         rigidBody.isKinematic = false;
-        rigidBody.useGravity = true;
+        return null;
     }
 
     private void Update() {
@@ -74,32 +55,25 @@ public class Item : ActorBase {
         }
     }
 
-    public virtual void DestroyAndTryRespawn(bool respawnDelay = true) {
-        if (hander) {
-            hander.interact.DropItem();
-        }
+    public virtual void ResetItem() {
         if (isTakeable) {
-            if (respawnDelay) {
-                GameManager.main.StartCoroutine(_RespawnDelay());
-            } else {
-                respawner.gameObject.SetActive(true);
+            if (!gameObject.activeSelf) {
+                gameObject.SetActive(true);
             }
-            gameObject.SetActive(false);
-            if (!isRespawner && respawner) {
-                Destroy(gameObject);
+            if (hander) {
+                if (gameObject.activeSelf) {
+                    hander.interact.DropAllItems();
+                } else {
+                    hander = null;
+                    transform.SetParent(null);
+                }
             }
-        } else {
-            Destroy(gameObject);
+            transform.position = startPos;
+            transform.rotation = startRot;
+            rigidBody.isKinematic = isKinematic;
+            rigidBody.velocity = Vector3.zero;
+            rigidBody.angularVelocity = Vector3.zero;
         }
     }
-
-    protected virtual IEnumerator _RespawnDelay() {
-        yield return new WaitForSeconds(respawner.respawnDelay);
-        respawner.gameObject.SetActive(true);
-    }
-
-    public Action<Item> OnTriggeringDisable;
-    protected virtual void OnDisable() => TriggeringDisable();
-    protected virtual void TriggeringDisable() => OnTriggeringDisable?.Invoke(this);
 
 }

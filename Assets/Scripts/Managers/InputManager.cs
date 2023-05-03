@@ -36,6 +36,7 @@ public class InputManager : MonoBehaviour {
     }
 
     private void Awake() {
+        if (maps != null) return;
         maps = new InputSettings();
     }
 
@@ -51,6 +52,14 @@ public class InputManager : MonoBehaviour {
         maps.Disable();
     }
 
+
+    public static void UpdateMode () {
+        if (UIManager.main.HasActiveElement()) {
+            ActivateUIMode();
+        } else {
+            ActivateGameMode();
+        }
+    }
 
     public static void ActivateUIMode() {
         maps.UI.Enable();

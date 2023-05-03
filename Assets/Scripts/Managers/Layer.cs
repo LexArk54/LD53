@@ -10,11 +10,11 @@ public static class Layer {
     public static int Player { get; } = LayerMask.NameToLayer("Player");
     public static int Water { get; } = LayerMask.NameToLayer("Water");
     public static int UI { get; } = LayerMask.NameToLayer("UI");
-    public static int Actor { get; } = LayerMask.NameToLayer("Actor");
+    public static int Character { get; } = LayerMask.NameToLayer("Character");
     public static int Radar { get; } = LayerMask.NameToLayer("Radar");
     public static int Item { get; } = LayerMask.NameToLayer("Item");
     public static int Trigger { get; } = LayerMask.NameToLayer("Item");
-    public static int Interactive { get; } = LayerMask.NameToLayer("Interactive");
+    public static int ItemStatic { get; } = LayerMask.NameToLayer("ItemStatic");
 
 
 
@@ -40,7 +40,7 @@ public static class Layer {
 
         public static LayerMask playerAttack = GetMask(new int[] {
             Layer.Default,
-            Layer.Actor,
+            Layer.Character,
         });
 
     }

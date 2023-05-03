@@ -212,7 +212,7 @@ public partial class @InputSettings: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""ed702ca8-85f3-4e08-bcdd-a65ff4b3d63f"",
-                    ""path"": ""<Keyboard>/escape"",
+                    ""path"": ""<Keyboard>/tab"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -245,7 +245,7 @@ public partial class @InputSettings: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""4375b271-ebe5-407a-bea1-ab77c2e2970c"",
-                    ""path"": ""<Keyboard>/v"",
+                    ""path"": ""<Keyboard>/c"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -273,7 +273,7 @@ public partial class @InputSettings: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""33fc115e-6b00-48a1-aab9-9f0e17b65fae"",
-                    ""path"": ""<Keyboard>/escape"",
+                    ""path"": ""<Keyboard>/tab"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

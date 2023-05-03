@@ -2,27 +2,101 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour {
+public class UIManager : Manager {
 
     public static UIManager main;
 
+    public UIMainMenu mainMenu;
     public UISettings settings;
     public Image fader;
     public float screenFadeSpeed = 0.01f;
+    public UIMessage message;
+    public GameObject congrat;
 
-    private void Awake() {
-        main = this;
-        ScreenShow();
+    public Text itemHint;
+    public Text dropHint;
+
+    [Header("Fish Indicator")]
+    public GameObject eyeIndicatorContainer;
+    public Image eyeIndicator;
+    [Header("Fish Indicator")]
+    public GameObject fishIndicatorContainer;
+    public Image fishIndicator;
+    public Text fishIndicatorCount;
+
+
+    public Color[] indicatorColors;
+
+    public override void Awake() {
+        base.Awake();
+        if (this.InitializeSingleton(ref main)) {
+            ScreenShow();
+        }
+        SetItemHint("");
+        SetDropHint("");
+        SetEYE(IndicatorColor.None);
+        SetFishCount(0);
+        SetCongrat(false);
+        if (SceneManager.GetActiveScene().name == "MainMenu") {
+            mainMenu.gameObject.SetActive(true);
+        } else {
+            mainMenu.gameObject.SetActive(false);
+        }
+        settings.gameObject.SetActive(false);
+    }
+
+    public void SetItemHint(string text) {
+        itemHint.text = text;
+    }
+
+    public void SetDropHint(string text) {
+        itemHint.text = text;
+    }
+
+    public void SetCongrat(bool isVisible) {
+        if (congrat.activeSelf != isVisible) {
+            congrat.SetActive(isVisible);
+        }
+    }
+
+    public void SetFishColor(int color) {
+        if (color == IndicatorColor.None) {
+            SetFishCount(0);
+        } else {
+            fishIndicator.color = indicatorColors[color];
+        }
+    }
+    public void SetFishCount(int count) {
+        var isVisible = count != 0;
+        if (fishIndicatorContainer.activeSelf != isVisible) {
+            fishIndicatorContainer.SetActive(isVisible);
+        }
+        if (isVisible) {
+            fishIndicatorCount.text = "x" + count;
+        } else {
+            SetFishColor(IndicatorColor.White);
+        }
+    }
+
+    public void SetEYE(int color) {
+        if (color == IndicatorColor.None) {
+            eyeIndicatorContainer.gameObject.SetActive(false);
+            return;
+        }
+        eyeIndicatorContainer.gameObject.SetActive(true);
+        eyeIndicator.color = indicatorColors[color];
     }
 
     public void TogglePause() {
         settings.gameObject.SetActive(!settings.gameObject.activeSelf);
+        InputManager.UpdateMode();
     }
 
-    public bool hasActiveElement() {
-        return settings.gameObject.activeSelf;
+    public bool HasActiveElement() {
+        return settings.gameObject.activeSelf || mainMenu.gameObject.activeSelf;
     }
 
     public void ScreenShow(Action callback = null) {
@@ -38,14 +112,14 @@ public class UIManager : MonoBehaviour {
         c.a = from;
         fader.color = c;
         fader.gameObject.SetActive(true);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSecondsRealtime(1f);
         while (c.a != to) {
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForSecondsRealtime(.01f); ;
             c.a = Mathf.MoveTowards(c.a, to, screenFadeSpeed);
             fader.color = c;
         }
-        fader.gameObject.SetActive(false);
         callback?.Invoke();
+        if (to == 0f) fader.gameObject.SetActive(false);
     }
 
     /// <summary>

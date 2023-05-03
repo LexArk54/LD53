@@ -9,8 +9,7 @@ public sealed class Tag {
     public static string MainCamera { get; } = "MainCamera";
     public static string Player { get; } = "Player";
     public static string GameController { get; } = "GameController";
-    public static string Actor { get; } = "Actor";
-    public static string Item { get; } = "Item";
+    public static string Interactive { get; } = "Interactive";
     public static string Water { get; } = "Water";
 
 }

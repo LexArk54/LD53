@@ -30,7 +30,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7719990897521972937}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &5286495418699945029
 AudioSource:
@@ -138,8 +138,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7719990897521972937}
-  - component: {fileID: 344705091455340844}
   - component: {fileID: 3374439755775675343}
+  - component: {fileID: 344705091455340844}
   m_Layer: 0
   m_Name: _EmptyModel
   m_TagString: Untagged
@@ -160,11 +160,25 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2243673293065973121}
-  - {fileID: 3332709503153355682}
   - {fileID: 8877878907947824250}
+  - {fileID: 3332709503153355682}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &3374439755775675343
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1834710762332635337}
+  m_Material: {fileID: 13400000, guid: b6fc3819d1577d245bc7e862d32ef890, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &344705091455340844
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,26 +188,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1834710762332635337}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3882a045430ca754f97d2905a5b4ab47, type: 3}
+  m_Script: {fileID: 11500000, guid: b3915f2f57714ea41afe53fdcdb99bd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actor: {fileID: 0}
+  character: {fileID: 0}
   headPoint: {fileID: 2243673293065973121}
   armPoint: {fileID: 0}
---- !u!136 &3374439755775675343
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1834710762332635337}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 1
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3206226011116137289
 GameObject:
   m_ObjectHideFlags: 0
@@ -255,7 +255,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7719990897521972937}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &1257320123563425779
 AudioSource:

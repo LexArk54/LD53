@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c0de21a6ac3faa4fa4535181d290b35, type: 3}
   m_Name: Music MainMenu
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: 4d38ea07aef7f6d4989ca2afca64d927, type: 3}
-  volume: 1
+  clip: {fileID: 8300000, guid: fb5ce356f069b5941b7a85372e90b8f7, type: 3}
+  volume: 0.816

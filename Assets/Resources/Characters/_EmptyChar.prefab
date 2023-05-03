@@ -55,12 +55,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5887371064571696034}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 181ccae37512a3740960a57c61fcd7f6, type: 3}
+  m_Script: {fileID: 11500000, guid: fccd8e8ae7977c24fbe84569da4949d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actor: {fileID: 0}
-  actors: []
-  items: []
+  character: {fileID: 0}
+  interactives: []
 --- !u!1 &7779976893874960410
 GameObject:
   m_ObjectHideFlags: 0
@@ -73,7 +72,6 @@ GameObject:
   - component: {fileID: 4189745225923969029}
   - component: {fileID: 6613812049375100863}
   - component: {fileID: 4189745225923969030}
-  - component: {fileID: -885220289384143885}
   m_Layer: 6
   m_Name: _EmptyChar
   m_TagString: Actor
@@ -122,10 +120,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 7779976893874960410}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4bb747f341a0db449d07001d882e984, type: 3}
+  m_Script: {fileID: 11500000, guid: c288d36c6d6e12640968fdf52c0ba475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 0}
+  hander: {fileID: 0}
+  hintInHand: 
+  hintTake: 
   controller: {fileID: 0}
   startPos: {x: 0, y: 0, z: 0}
   startRot: {x: 0, y: 0, z: 0, w: 0}
@@ -138,47 +139,32 @@ MonoBehaviour:
   m_GameObject: {fileID: 7779976893874960410}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 764b3fe45bb466a47a046aad0790fe37, type: 3}
+  m_Script: {fileID: 11500000, guid: f414f9975f032a04b856993ac14af30a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actor: {fileID: 0}
+  character: {fileID: 0}
   lastGroundPos: {x: 0, y: 0, z: 0}
   isGrounded: 0
   isCrouching: 0
   isSprinting: 0
   isAirSprinting: 0
   isSliding: 0
-  isSwiming: 0
   sprintValue: 0
   sprintAir: 0
   speedAcceleration: 15
-  maxSpeedValue: 0.5
+  maxSpeedValue: 0.3
   crouchSpeed: 2
   runSpeed: 5
   sprintSpeed: 12
   jumpForce: 300
-  airSprintTime: 3
+  airSprintTime: 1.5
   angularAxel: 0.2
   angular: 10
   speedModWithCrab: 0.7
   angularModWithSprint: 0.2
   groundLayerMask:
     serializedVersion: 2
-    m_Bits: 3089
+    m_Bits: 1025
   groundCheckDistance: 0.08
   slideLimit: 45
---- !u!114 &-885220289384143885
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7779976893874960410}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b81922a849d978e4f9b1e80a1685d58e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  actor: {fileID: 0}
-  crabInHands: {fileID: 0}
-  itemInHand: {fileID: 0}
+  cauotTime: 0.2

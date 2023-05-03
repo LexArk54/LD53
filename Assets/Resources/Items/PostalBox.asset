@@ -12,6 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c81a83b50265c9e4db83e0d5b2340bfb, type: 3}
   m_Name: PostalBox
   m_EditorClassIdentifier: 
-  name: Postal
-  icon: {fileID: 0}
+  name: Mail Box
   prefab: {fileID: 3944839397167094680, guid: 145d5717142a0cb40bce8d2b85b9501b, type: 3}

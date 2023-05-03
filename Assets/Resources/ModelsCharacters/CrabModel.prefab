@@ -30,7 +30,7 @@ PrefabInstance:
     - target: {fileID: 3332709503153355682, guid: 0f3f691e54be569469d73209a3cae675,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3374439755775675343, guid: 0f3f691e54be569469d73209a3cae675,
         type: 3}
@@ -110,7 +110,7 @@ PrefabInstance:
     - target: {fileID: 8877878907947824250, guid: 0f3f691e54be569469d73209a3cae675,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8877878907947824250, guid: 0f3f691e54be569469d73209a3cae675,
         type: 3}
@@ -267,10 +267,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 296260775464440066}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b064151652c770743959cb9c12cc15b6, type: 3}
+  m_Script: {fileID: 11500000, guid: f18a6bca45e5cd149b12ff93176cc311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actor: {fileID: 0}
+  character: {fileID: 0}
   footAudioSource: {fileID: 5545555188011883036}
   headAudioSource: {fileID: 1502591909504250282}
   stepClips: []

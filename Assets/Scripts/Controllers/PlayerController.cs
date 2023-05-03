@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : ActorController {
+public class PlayerController : CharacterController {
 
     [Header("Camera Settings")]
     [SerializeField] private float sensivityScroll = 0.05f;
@@ -31,26 +31,38 @@ public class PlayerController : ActorController {
         cameraTransformZ = Camera.main.transform;
         cameraTransformV = cameraTransformZ.parent;
         cameraTransformH = cameraTransformV.parent;
+        cameraEulerH = transform.eulerAngles.y;
         base.Awake();
     }
 
     public override void ResetObject() {
         base.ResetObject();
-        actor.gameObject.SetActive(false);
-        actor.gameObject.SetActive(true);
-        actor.model.animator.SetBool("crabInHands", false);
+        UIManager.main.SetItemHint("");
+        UIManager.main.SetFishCount(0);
+        character.model.animator.ResetTrigger("FallDeath");
+        var triggers = FindObjectsByType<DeathTrigger>(FindObjectsSortMode.None);
+        foreach (var trigger in triggers) {
+            trigger.ResetObject();
+        }
         Play();
     }
 
-    public void Kill(Actor enemy, Action callback = null) {
+    public void Kill(Character enemy, Action callback = null) {
         if (enemy) {
             transform.forward = (enemy.transform.position - transform.position).SetY().normalized;
         }
         Pause();
-        actor.SetIsDead(true);
-        actor.model.animator.Play("Death");
+        character.SetIsDead(true);
+        character.model.animator.Play("Death");
         UIManager.main.ScreenFade(() => {
             ResetObject();
+            foreach (var crab in GameManager.main.crabs) {
+                crab.ResetObject();
+            }
+            var items = FindObjectsByType<Item>(FindObjectsSortMode.None);
+            foreach (var item in items) {
+                item.ResetItem();
+            }
             callback?.Invoke();
             UIManager.main.ScreenShow();
         });
@@ -58,8 +70,8 @@ public class PlayerController : ActorController {
 
     public void FallDeath() {
         Pause();
-        actor.SetIsDead(true);
-        actor.model.animator.Play("FallDeath");
+        character.SetIsDead(true);
+        character.model.animator.SetTrigger("FallDeath");
         UIManager.main.ScreenFade(() => {
             ResetObject();
             UIManager.main.ScreenShow();
@@ -87,41 +99,36 @@ public class PlayerController : ActorController {
     }
 
     private void Crouch_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        if (isPaused) return;
-        actor.movement.InputCrouch(!actor.movement.isCrouching);
+        if (isPaused || !character.isUnderControl) return;
+        character.movement.InputCrouch(!character.movement.isCrouching);
     }
 
     private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        if (isPaused) return;
-        actor.movement.InputJump();
+        if (isPaused || !character.isUnderControl) return;
+        character.movement.InputJump();
     }
 
     private void Sprint_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        if (isPaused) return;
-        actor.movement.InputSprint();
+        if (isPaused || character.interact.GetCrabInHands() || !character.isUnderControl) return;
+        character.movement.InputSprint();
     }
 
     private void ESC_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
         UIManager.main.TogglePause();
-        if (UIManager.main.hasActiveElement()) {
-            InputManager.ActivateUIMode();
-        } else {
-            InputManager.ActivateGameMode();
-        }
     }
 
     private void Use_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        if (isPaused) return;
-        actor.interact.InputUse();
+        if (isPaused || !character.isUnderControl) return;
+        character.interact.InputUse();
     }
     private void Drop_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        if (isPaused) return;
-        actor.interact.InputDrop();
+        if (isPaused || !character.isUnderControl) return;
+        character.interact.InputDrop();
     }
 
     private void Update() {
         CameraControl();
-        if (isPaused) return;
+        if (isPaused || !character.isUnderControl || !Application.isFocused) return;
         CharacterControl();
     }
 
@@ -155,9 +162,9 @@ public class PlayerController : ActorController {
         isFPV = value;
         if (value) {
             cameraTransformZ.localPosition = Vector3.zero;
-            actor.model.SetRenderType(RenderType.OnlyShadow);
+            character.model.SetRenderType(RenderType.OnlyShadow);
         } else {
-            actor.model.SetRenderType(RenderType.All);
+            character.model.SetRenderType(RenderType.All);
         }
     }
 
@@ -165,15 +172,15 @@ public class PlayerController : ActorController {
         isTempFPV = value;
         if (value) {
             cameraTransformZ.localPosition = Vector3.zero;
-            actor.model.SetRenderType(RenderType.OnlyShadow);
+            character.model.SetRenderType(RenderType.OnlyShadow);
         } else {
-            actor.model.SetRenderType(RenderType.All);
+            character.model.SetRenderType(RenderType.All);
         }
     }
 
     void CameraMove() {
         if (isFPV) {
-            cameraTransformH.position = actor.model.headPoint.position;
+            cameraTransformH.position = character.model.headPoint.position;
         } else {
             float tempZoom = zoom;
             RaycastHit hit;
@@ -191,12 +198,12 @@ public class PlayerController : ActorController {
                 }
             }
             if (isTempFPV) {
-                cameraTransformZ.position = actor.model.headPoint.position;
+                cameraTransformZ.position = character.model.headPoint.position;
             } else {
                 cameraTransformZ.localPosition = zoomDirection * tempZoom;
             }
         }
-        cameraTransformH.position = actor.model.headPoint.position;
+        cameraTransformH.position = character.model.headPoint.position;
     }
 
 
@@ -206,14 +213,18 @@ public class PlayerController : ActorController {
         if (input.magnitude > 0) {
             float angle = Mathf.Atan2(input.x, input.y) * Mathf.Rad2Deg;
             var dir = Quaternion.Euler(0, angle, 0) * cameraTransformH.forward;
-            actor.movement.InputDirection(dir);
-        } else {
-            actor.movement.InputDirection(transform.forward);
+            character.movement.InputDirection(dir);
         }
-        if (actor.movement.isSprinting) {
-            actor.movement.InputMove(transform.forward * input.magnitude);
+        if (character.movement.isSprinting) {
+            if (input.magnitude > 0) {
+                input.Normalize();
+            }
+            float angle = Mathf.Atan2(input.x, input.y) * Mathf.Rad2Deg;
+            var dir = Quaternion.Euler(0, angle, 0) * cameraTransformH.forward;
+            character.movement.InputDirection(dir);
+            character.movement.InputMove(transform.forward);
         } else {
-            actor.movement.InputMove(cameraTransformH.forward * input.y + cameraTransformH.right * input.x);
+            character.movement.InputMove(cameraTransformH.forward * input.y + cameraTransformH.right * input.x);
         }
     }
 

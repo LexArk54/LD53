@@ -20,7 +20,7 @@ PrefabInstance:
     - target: {fileID: 7965258388547901584, guid: a4b9ef6d46b24054492733a757dccb8b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7965258388547901584, guid: a4b9ef6d46b24054492733a757dccb8b,
         type: 3}
@@ -99,7 +99,43 @@ PrefabInstance:
     - target: {fileID: 4189745225923969030, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
       propertyPath: runSpeed
-      value: 3
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4189745225923969030, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
+        type: 3}
+      propertyPath: swimSpeed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4189745225923969030, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
+        type: 3}
+      propertyPath: sprintSpeed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6613812049375100863, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
+        type: 3}
+      propertyPath: data
+      value: 
+      objectReference: {fileID: 11400000, guid: e18f7d4c185699b438d95bd5023d8b67,
+        type: 2}
+    - target: {fileID: 6613812049375100863, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
+        type: 3}
+      propertyPath: hintUse
+      value: Take
+      objectReference: {fileID: 0}
+    - target: {fileID: 6613812049375100863, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
+        type: 3}
+      propertyPath: hintDrop
+      value: Drop
+      objectReference: {fileID: 0}
+    - target: {fileID: 6613812049375100863, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
+        type: 3}
+      propertyPath: hintTake
+      value: '[E] Take'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6613812049375100863, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
+        type: 3}
+      propertyPath: hintInHand
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7779976893874960410, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
@@ -109,7 +145,7 @@ PrefabInstance:
     - target: {fileID: 8372349500053061149, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
       propertyPath: m_Radius
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8381175644629316413, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
@@ -199,6 +235,6 @@ MonoBehaviour:
   eating: 0
   isEating: 0
   isFollowing: 0
-  targetDelay: 2
-  eatingTime: 3
+  targetDelay: 3
+  eatingTime: 2
   eatDistance: 1

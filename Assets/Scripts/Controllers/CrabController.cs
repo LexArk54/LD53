@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CrabController : ActorController {
+public class CrabController : CharacterController {
 
     public Item target;
     public float targetDistance;
 
-    public Actor hander;
+    public Character hander;
 
     [Header("Показатели")]
     public float eating;
@@ -17,7 +17,7 @@ public class CrabController : ActorController {
 
     [Header("Характеристики")]
     public float targetDelay = 2f;
-    public float eatingTime = 3f;
+    public float eatingTime = 2f;
     public float eatDistance = 1f;
 
     NavMeshPath path;
@@ -43,7 +43,7 @@ public class CrabController : ActorController {
         } else {
             if (isEating) StopEating();
             isFollowing = false;
-            actor.movement.InputMove(Vector3.zero);
+            character.movement.InputMove(Vector3.zero);
         }
     }
     IEnumerator _TargetDelay() {
@@ -52,19 +52,19 @@ public class CrabController : ActorController {
     }
 
     public void StartEating() {
-        actor.movement.InputMove(Vector3.zero);
+        character.movement.InputMove(Vector3.zero);
         eating = eatingTime;
         isEating = true;
-        actor.model.animator.SetBool("isEating", true);
+        character.model.animator.SetBool("isEating", true);
     }
 
     public void StopEating() {
         isEating = false;
-        actor.model.animator.SetBool("isEating", false);
+        character.model.animator.SetBool("isEating", false);
         if (target) {
             if (eating < 0) {
-                target.DestroyAndTryRespawn();
-                SetTarget(actor.radar.GetNearestItem(ItemNames.Fish));
+                target.ResetItem();
+                SetTarget((Fish)character.radar.GetNearest(ActorNames.Fish));
             } else if (!target.hander) {
                 SetTarget(null);
             }
@@ -72,23 +72,24 @@ public class CrabController : ActorController {
         eating = 0;
     }
 
-    public void SetInHands(Actor hander) {
-        this.hander = hander;
+    public void SetInHands(Character hander) {
         if (hander) {
-            actor.movement.InputMove(Vector3.zero);
-            actor.movement.rigidBody.detectCollisions = false;
-            actor.movement.rigidBody.useGravity = false;
-            actor.movement.rigidBody.isKinematic = true;
-            actor.movement.enabled = false;
-            actor.movement.Stop();
+            Physics.IgnoreLayerCollision(gameObject.layer, hander.gameObject.layer, true);
+            character.movement.InputMove(Vector3.zero);
+            character.movement.rigidBody.isKinematic = true;
+            character.movement.enabled = false;
+            character.movement.Stop();
             SetTarget(null);
+            this.hander = hander;
             Update();
         } else {
-            actor.movement.rigidBody.detectCollisions = true;
-            actor.movement.rigidBody.useGravity = true;
-            actor.movement.rigidBody.isKinematic = false;
-            actor.movement.enabled = true;
-            actor.movement.InputDirection(transform.forward);
+            if (this.hander) { 
+                Physics.IgnoreLayerCollision(gameObject.layer, this.hander.gameObject.layer, false); 
+            }
+            character.movement.rigidBody.isKinematic = false;
+            character.movement.enabled = true;
+            character.movement.InputDirection(transform.forward);
+            this.hander = null;
         }
     }
 
@@ -108,41 +109,21 @@ public class CrabController : ActorController {
             }
             return;
         } else {
-            SetTarget(actor.radar.GetNearestItem(ItemNames.Fish));
+            SetTarget((Fish)character.radar.GetNearest(ActorNames.Fish));
         }
         if (target) {
             if (isFollowing) {
                 if (targetDistance > eatDistance) {
-                    MoveTo(target.transform.position, false);
+                    character.movement.MoveTo(target.transform.position, false);
                 } else {
                     if (!isEating) {
                         StartEating();
                     }
                 }
             } else {
-                actor.movement.InputDirection((target.transform.position - transform.position).SetY());
+                character.movement.InputDirection((target.transform.position - transform.position).SetY());
             }
             return;
-        }
-    }
-
-    private void MoveTo(Vector3 pos, bool smooth) {
-        path = new NavMeshPath();
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5f, Layer.NavMesh.PathFind)) {
-            NavMesh.CalculatePath(hit.position, pos, Layer.NavMesh.PathFind, path);
-        }
-        Vector3 moveDirection;
-        if (path.corners.Length == 0) {
-            moveDirection = (pos - transform.position).SetY();
-        } else {
-            moveDirection = (path.corners[1] - transform.position).SetY();
-        }
-        actor.movement.InputDirection(moveDirection.normalized);
-        if (smooth) {
-            moveDirection = transform.forward * (targetDistance / actor.movement.runSpeed);
-            actor.movement.InputMove(Vector3.ClampMagnitude(moveDirection, 1f));
-        } else {
-            actor.movement.InputMove(transform.forward);
         }
     }
 

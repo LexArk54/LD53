@@ -5,6 +5,4 @@ using UnityEngine;
 public class ItemModel : MonoBehaviour
 {
 
-    public Transform handOffsetPoint;
-
 }
