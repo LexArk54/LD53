@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : Manager {
@@ -12,12 +11,14 @@ public class UIManager : Manager {
     public UIMainMenu mainMenu;
     public UISettings settings;
     public Image fader;
+    public float screenShowSpeed = 0.02f;
     public float screenFadeSpeed = 0.01f;
     public UIMessage message;
     public GameObject congrat;
 
+    [Header("GameUI")]
+    public GameObject gameUI;
     public Text itemHint;
-    public Text dropHint;
 
     [Header("Fish Indicator")]
     public GameObject eyeIndicatorContainer;
@@ -30,35 +31,32 @@ public class UIManager : Manager {
 
     public Color[] indicatorColors;
 
-    public override void Awake() {
-        base.Awake();
-        if (this.InitializeSingleton(ref main)) {
-            ScreenShow();
-        }
-        SetItemHint("");
-        SetDropHint("");
+    public override void Init() {
+        base.Init();
+        main = this;
+        ScreenShow();
+        SetItemHint(string.Empty);
         SetEYE(IndicatorColor.None);
         SetFishCount(0);
         SetCongrat(false);
-        if (SceneManager.GetActiveScene().name == "MainMenu") {
+        if (GameManager.GetActiveScene().name == "MainMenu") {
             mainMenu.gameObject.SetActive(true);
         } else {
             mainMenu.gameObject.SetActive(false);
         }
         settings.gameObject.SetActive(false);
+        message.Show(string.Empty);
+        InputManager.UpdateMode();
     }
 
     public void SetItemHint(string text) {
         itemHint.text = text;
     }
 
-    public void SetDropHint(string text) {
-        itemHint.text = text;
-    }
-
     public void SetCongrat(bool isVisible) {
         if (congrat.activeSelf != isVisible) {
             congrat.SetActive(isVisible);
+            InputManager.UpdateMode();
         }
     }
 
@@ -69,6 +67,7 @@ public class UIManager : Manager {
             fishIndicator.color = indicatorColors[color];
         }
     }
+
     public void SetFishCount(int count) {
         var isVisible = count != 0;
         if (fishIndicatorContainer.activeSelf != isVisible) {
@@ -96,30 +95,33 @@ public class UIManager : Manager {
     }
 
     public bool HasActiveElement() {
-        return settings.gameObject.activeSelf || mainMenu.gameObject.activeSelf;
+        return settings.gameObject.activeSelf || mainMenu.gameObject.activeSelf || congrat.activeSelf;
     }
 
     public void ScreenShow(Action callback = null) {
-        StartCoroutine(_ScreenFadeIE(1f, 0f, callback));
+        StartCoroutine(_ScreenFadeIE(1f, 0f, screenShowSpeed, 1f, callback));
     }
 
     public void ScreenFade(Action callback = null) {
-        StartCoroutine(_ScreenFadeIE(0f, 1f, callback));
+        StartCoroutine(_ScreenFadeIE(0f, 1f, screenFadeSpeed, 0, callback));
     }
 
-    IEnumerator _ScreenFadeIE(float from, float to, Action callback) {
+    IEnumerator _ScreenFadeIE(float from, float to, float speed, float delay, Action callback) {
         var c = fader.color;
         c.a = from;
         fader.color = c;
         fader.gameObject.SetActive(true);
-        yield return new WaitForSecondsRealtime(1f);
+        gameUI.SetActive(to == 0f);
+        yield return new WaitForSecondsRealtime(delay);
         while (c.a != to) {
-            yield return new WaitForSecondsRealtime(.01f); ;
-            c.a = Mathf.MoveTowards(c.a, to, screenFadeSpeed);
+            yield return new WaitForSecondsRealtime(.01f);
+            c.a = Mathf.MoveTowards(c.a, to, speed);
             fader.color = c;
         }
         callback?.Invoke();
-        if (to == 0f) fader.gameObject.SetActive(false);
+        if (to == 0f) {
+            fader.gameObject.SetActive(false);
+        }
     }
 
     /// <summary>

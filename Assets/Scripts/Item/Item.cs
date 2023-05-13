@@ -4,14 +4,6 @@ using UnityEngine;
 using System;
 
 
-[Serializable]
-public class ItemSlot {
-
-    public InteractData data;
-    public int count;
-
-}
-
 public class Item : Interactive {
 
     [SerializeField] protected bool isTakeable = true;
@@ -19,19 +11,59 @@ public class Item : Interactive {
 
     [HideInInspector] public Rigidbody rigidBody;
 
-    private Vector3 startPos;
-    private Quaternion startRot;
     private bool isKinematic;
 
-    public virtual void Awake() {
+    public override void ResetObject() {
+        if (isTakeable) {
+            if (!gameObject.activeSelf) {
+                gameObject.SetActive(true);
+            }
+            if (hander) {
+                if (gameObject.activeSelf) {
+                    hander.interact.DropItem(true);
+                } else {
+                    hander = null;
+                }
+            }
+            rigidBody.isKinematic = isKinematic;
+            rigidBody.velocity = Vector3.zero;
+            rigidBody.angularVelocity = Vector3.zero;
+        }
+        base.ResetObject();
+    }
+
+    public override void Awake() {
         rigidBody = GetComponent<Rigidbody>();
-        startPos = transform.position;
-        startRot = transform.rotation;
+        base.Awake();
         isKinematic = rigidBody.isKinematic;
     }
 
-    public virtual bool CanTake(Character actor) {
-        return isTakeable;
+    public override bool CanInteract(Character character) {
+        if (isTakeable && hander == null) {
+            return CanTake(character);
+        } else {
+            return CanUse(character);
+        }
+    }
+
+    public override void Interact(Character character) {
+        base.Interact(character);
+        if (isTakeable && hander == null) {
+            if (CanTake(character)) {
+                character.interact.PickupItem(this);
+            }
+        } else {
+            if (CanUse(character)) {
+                OnUse(character);
+            }
+        }
+    }
+
+    protected virtual bool CanUse(Character actor) {
+        return true;
+    }
+    protected virtual bool CanTake(Character actor) {
+        return !actor.interact.itemInHand;
     }
     public virtual Item OnTake(Character actor) {
         hander = actor;
@@ -52,27 +84,6 @@ public class Item : Interactive {
         if (hander) {
             transform.position = hander.model.armPoint.position;
             transform.rotation = hander.model.armPoint.rotation;
-        }
-    }
-
-    public virtual void ResetItem() {
-        if (isTakeable) {
-            if (!gameObject.activeSelf) {
-                gameObject.SetActive(true);
-            }
-            if (hander) {
-                if (gameObject.activeSelf) {
-                    hander.interact.DropAllItems();
-                } else {
-                    hander = null;
-                    transform.SetParent(null);
-                }
-            }
-            transform.position = startPos;
-            transform.rotation = startRot;
-            rigidBody.isKinematic = isKinematic;
-            rigidBody.velocity = Vector3.zero;
-            rigidBody.angularVelocity = Vector3.zero;
         }
     }
 

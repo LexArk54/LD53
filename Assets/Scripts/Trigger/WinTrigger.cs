@@ -1,36 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class WinTrigger : MonoBehaviour {
 
-    private PlayerController player;
-    private CrabController crab;
+    [SerializeField] private PlayerController player;
+    [SerializeField] private CrabController crab;
 
+    [SerializeField] private int currentLevelIndex;
     [SerializeField] private bool isEndOfGame = false;
-
-    private void Awake() {
-        player = null;
-        crab = null;
-    }
 
     public void Win() {
         player.Pause();
         player.enabled = false;
-        player.character.interact.DropCrab();
-        player.character.interact.DropAllItems();
+        player.character.interact.PlaceCrab();
+        player.character.interact.DropItem(true);
         if (isEndOfGame) {
             UIManager.main.SetCongrat(true);
         } else {
-            UIManager.main.ScreenFade(() => {
-                PlayerPrefs.SetInt("OpenedLevels", 2);
-                var loader = SceneManager.LoadSceneAsync("Level2");
-                loader.completed += (AsyncOperation obj) => {
-                    GameManager.main.RebuildManagers();
-                };
-            });
+            var openedLevels = PlayerPrefs.GetInt("OpenedLevels", 0);
+            var nextLevel = currentLevelIndex + 1;
+            if (openedLevels < nextLevel) {
+                PlayerPrefs.SetInt("OpenedLevels", nextLevel);
+            }
+            GameManager.ChangeScene("Level" + nextLevel);
         }
+        gameObject.SetActive(false);
     }
 
 
@@ -57,9 +52,6 @@ public class WinTrigger : MonoBehaviour {
             }
             if (actor.isPlayer) {
                 player = null;
-            }
-            if (player && crab) {
-                Win();
             }
         }
     }

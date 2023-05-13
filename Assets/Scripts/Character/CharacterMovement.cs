@@ -23,7 +23,7 @@ public class CharacterMovement : CharacterComponent {
 
     private Vector3 _inputMove;
     private Vector3 _inputDirection;
-    private float _inputSpeedMod = 1f;
+    private bool _inputSpeedDebuff;
     private float _jumpGroundingDelay = 0;
     public float speedFactor { get; private set; }
 
@@ -57,7 +57,7 @@ public class CharacterMovement : CharacterComponent {
     public LayerMask groundLayerMask;
     public float groundCheckDistance = .08f;
     public float slideLimit = 45f;
-    [SerializeField] private float cauotTime = 0.2f;
+    [SerializeField] private float cauotTime = 0.1f;
 
     NavMeshPath path;
 
@@ -70,7 +70,10 @@ public class CharacterMovement : CharacterComponent {
         } else {
             speed = runSpeed;
         }
-        return speed * _inputSpeedMod;
+        if (_inputSpeedDebuff) {
+            speed *= speedModWithCrab;
+        }
+        return speed;
     }
 
     public override void Init(Character actor) {
@@ -78,6 +81,7 @@ public class CharacterMovement : CharacterComponent {
         rigidBody = GetComponent<Rigidbody>();
         _collider = (CapsuleCollider)actor.model.collider;
         Stop();
+        _inputSpeedDebuff = false;
         if (isCrouching) {
             InputCrouch(false);
         }
@@ -94,11 +98,12 @@ public class CharacterMovement : CharacterComponent {
         rigidBody.velocity = Vector3.zero;
         character.model.animator.SetFloat("speedFactor", 0);
         character.model.animator.SetBool("isSprinting", false);
+        StopAllCoroutines();
     }
 
-    public void InputSpeedMod(float value) {
-        if (_inputSpeedMod == value) return;
-        _inputSpeedMod = value;
+    public void InputSpeedDebuff(bool value) {
+        if (_inputSpeedDebuff == value) return;
+        _inputSpeedDebuff = value;
     }
 
     public void InputMove(Vector3 value) {
@@ -125,6 +130,7 @@ public class CharacterMovement : CharacterComponent {
             isSliding = false;
             _SetFriction(0f);
             _jumpGroundingDelay = .2f;
+            rigidBody.velocity = rigidBody.velocity.SetY();
             rigidBody.AddForce(Vector3.up * jumpForce * rigidBody.mass);
             character.model.animator.Play("Jump");
             lastGroundTime = Time.time;
@@ -148,26 +154,28 @@ public class CharacterMovement : CharacterComponent {
         //    Stop();
         //}
     }
-    public void MoveTo(Vector3 pos, bool smooth) {
+    public void MoveTo(Vector3 pos, bool smooth, bool sprint) {
         path = new NavMeshPath();
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5f, Layer.NavMesh.PathFind)) {
             NavMesh.CalculatePath(hit.position, pos, Layer.NavMesh.PathFind, path);
         }
         Vector3 moveDirection;
-        if (path.corners.Length < 2) {
-            moveDirection = (pos - transform.position).SetY();
-        } else {
+        if (path.corners.Length > 1) {
             moveDirection = (path.corners[1] - transform.position).SetY();
+        } else {
+            return;// moveDirection = (pos - transform.position).SetY();
         }
-        character.movement.InputDirection(moveDirection.normalized);
+        InputDirection(moveDirection.normalized);
         if (smooth) {
             var destinationDirection = (pos - transform.position).SetY();
             moveDirection = transform.forward * (destinationDirection.magnitude / character.movement.runSpeed);
-            character.movement.InputMove(Vector3.ClampMagnitude(moveDirection, 1f));
+            InputMove(Vector3.ClampMagnitude(moveDirection, 1f));
         } else {
-            character.movement.InputMove(transform.forward);
+            InputMove(transform.forward);
         }
-        character.movement.InputSprint();
+        if (sprint) {
+            InputSprint();
+        }
     }
 
     public void InputSprint() {
@@ -178,6 +186,7 @@ public class CharacterMovement : CharacterComponent {
             isSprinting = true;
             character.model.animator.SetBool("isSprinting", true);
             character.model.animator.Play("Sprint");
+            character.model.StartSprint();
         }
     }
 
@@ -196,6 +205,7 @@ public class CharacterMovement : CharacterComponent {
     protected void StopSprint() {
         isSprinting = false;
         character.model.animator.SetBool("isSprinting", false);
+        character.model.StopSprint();
         sprintValue = 0;
         if (isAirSprinting) {
             StopAirSprint();

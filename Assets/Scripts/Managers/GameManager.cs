@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : Manager {
 
@@ -10,16 +12,15 @@ public class GameManager : Manager {
 
     public CrabController[] crabs;
 
-    public override void Awake() {
-        base.Awake();
+    private void Awake() {
         if (this.InitializeSingleton(ref main)) {
             RebuildManagers();
         }
     }
 
-    public void RebuildManagers() {
+    private void RebuildManagers() {
         foreach (var manager in managers) {
-            manager.Awake();
+            manager.Init();
         }
         InputManager.UpdateMode();
     }
@@ -27,6 +28,20 @@ public class GameManager : Manager {
     void Start() {
         AudioManager.main.LoadSettings();
         InputManager.LoadSettings();
+    }
+
+    public static void ChangeScene(string sceneName, Action callback = null) {
+        UIManager.main.ScreenFade(() => {
+            var loader = SceneManager.LoadSceneAsync(sceneName);
+            loader.completed += (AsyncOperation obj) => {
+                main.RebuildManagers();
+                callback?.Invoke();
+            };
+        });
+    }
+
+    public static Scene GetActiveScene() {
+        return SceneManager.GetActiveScene();
     }
 
 }

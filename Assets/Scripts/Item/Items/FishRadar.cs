@@ -12,22 +12,18 @@ public class FishRadar : MonoBehaviour {
     [Header("Автоматические списки")]
     public int inRadarCount;
 
-    private void Awake() {
-        gameObject.SetActive(false);
-    }
-
-    protected virtual void Enter(Interactive actor) {
-        if (actor is Fish) {
+    protected virtual void Enter(Interactive iobject) {
+        if (iobject is Fish) {
             inRadarCount++;
-            actor.OnTriggeringDisable += Exit;
+            iobject.OnTriggeringDisable += Exit;
             fish.OnFishRadarEnter(inRadarCount);
         }
     }
 
-    protected virtual void Exit(Interactive actor) {
-        if (actor is Fish) {
+    protected virtual void Exit(Interactive iobject) {
+        if (iobject is Fish) {
             inRadarCount--;
-            actor.OnTriggeringDisable -= Exit;
+            iobject.OnTriggeringDisable -= Exit;
             fish.OnFishRadarExit(inRadarCount);
         }
     }

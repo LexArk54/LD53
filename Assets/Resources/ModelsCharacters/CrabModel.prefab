@@ -12,16 +12,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: CrabModel
       objectReference: {fileID: 0}
-    - target: {fileID: 1834710762332635337, guid: 0f3f691e54be569469d73209a3cae675,
-        type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 1834710762332635337, guid: 0f3f691e54be569469d73209a3cae675,
-        type: 3}
-      propertyPath: m_TagString
-      value: Actor
-      objectReference: {fileID: 0}
     - target: {fileID: 3206226011116137289, guid: 0f3f691e54be569469d73209a3cae675,
         type: 3}
       propertyPath: m_Layer
@@ -271,8 +261,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   character: {fileID: 0}
-  footAudioSource: {fileID: 5545555188011883036}
   headAudioSource: {fileID: 1502591909504250282}
+  footAudioSource: {fileID: 5545555188011883036}
   stepClips: []
   jumpClips: []
   layerMask:

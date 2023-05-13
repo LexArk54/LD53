@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public sealed class ActorNames {
-    public const string Player = "Crab";
+    public const string Player = "Player";
     public const string Crabherd = "Crabherd";
     public const string Crab = "Crab";
     public const string Fish = "Fish";
@@ -24,5 +24,9 @@ public class InteractData : ScriptableObject {
 
     public new string name;
     public Type type;
+
+    [Header("Hints")]
+    [TextArea(3, 3)] public string hintUse;
+    [TextArea(3, 3)] public string hintUseInhand;
 
 }

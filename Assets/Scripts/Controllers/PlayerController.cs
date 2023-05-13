@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : CharacterController {
+public class PlayerController : ActorController {
 
     [Header("Camera Settings")]
     [SerializeField] private float sensivityScroll = 0.05f;
@@ -35,16 +35,18 @@ public class PlayerController : CharacterController {
         base.Awake();
     }
 
-    public override void ResetObject() {
-        base.ResetObject();
-        UIManager.main.SetItemHint("");
+    public override void OnActorReseted() {
+        base.OnActorReseted();
+        UIManager.main.SetEYE(IndicatorColor.None);
         UIManager.main.SetFishCount(0);
+        UIManager.main.SetItemHint(string.Empty);
         character.model.animator.ResetTrigger("FallDeath");
         var triggers = FindObjectsByType<DeathTrigger>(FindObjectsSortMode.None);
         foreach (var trigger in triggers) {
             trigger.ResetObject();
         }
         Play();
+        character.SetIsDead(false);
     }
 
     public void Kill(Character enemy, Action callback = null) {
@@ -55,13 +57,9 @@ public class PlayerController : CharacterController {
         character.SetIsDead(true);
         character.model.animator.Play("Death");
         UIManager.main.ScreenFade(() => {
-            ResetObject();
+            character.ResetObject();
             foreach (var crab in GameManager.main.crabs) {
-                crab.ResetObject();
-            }
-            var items = FindObjectsByType<Item>(FindObjectsSortMode.None);
-            foreach (var item in items) {
-                item.ResetItem();
+                crab.OnActorReseted();
             }
             callback?.Invoke();
             UIManager.main.ScreenShow();
@@ -73,7 +71,7 @@ public class PlayerController : CharacterController {
         character.SetIsDead(true);
         character.model.animator.SetTrigger("FallDeath");
         UIManager.main.ScreenFade(() => {
-            ResetObject();
+            character.ResetObject();
             UIManager.main.ScreenShow();
         });
     }
@@ -82,9 +80,9 @@ public class PlayerController : CharacterController {
         InputManager.Game.Jump.performed += Jump_performed;
         InputManager.Game.Crouch.performed += Crouch_performed;
         InputManager.Game.Sprint.performed += Sprint_performed;
-        InputManager.Game.Use.performed += Use_performed;
         InputManager.Game.Drop.performed += Drop_performed;
         InputManager.Game.ESC.performed += ESC_performed;
+        InputManager.Game.Use.performed += Use_performed;
         InputManager.UI.ESC.performed += ESC_performed;
     }
 
@@ -92,10 +90,15 @@ public class PlayerController : CharacterController {
         InputManager.Game.Jump.performed -= Jump_performed;
         InputManager.Game.Crouch.performed -= Crouch_performed;
         InputManager.Game.Sprint.performed -= Sprint_performed;
-        InputManager.Game.Use.performed -= Use_performed;
         InputManager.Game.Drop.performed -= Drop_performed;
         InputManager.Game.ESC.performed -= ESC_performed;
+        InputManager.Game.Use.performed -= Use_performed;
         InputManager.UI.ESC.performed -= ESC_performed;
+    }
+
+    private void Use_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+        if (isPaused || !character.movement.isGrounded || !character.isUnderControl) return;
+        character.interact.InputInteract();
     }
 
     private void Crouch_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
@@ -109,7 +112,7 @@ public class PlayerController : CharacterController {
     }
 
     private void Sprint_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        if (isPaused || character.interact.GetCrabInHands() || !character.isUnderControl) return;
+        if (isPaused || character.interact.crabIsInHands() || !character.isUnderControl) return;
         character.movement.InputSprint();
     }
 
@@ -117,12 +120,8 @@ public class PlayerController : CharacterController {
         UIManager.main.TogglePause();
     }
 
-    private void Use_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        if (isPaused || !character.isUnderControl) return;
-        character.interact.InputUse();
-    }
     private void Drop_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        if (isPaused || !character.isUnderControl) return;
+        if (isPaused || !character.movement.isGrounded || !character.isUnderControl) return;
         character.interact.InputDrop();
     }
 

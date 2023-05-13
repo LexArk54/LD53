@@ -7,12 +7,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2647691629482790927}
     m_Modifications:
-    - target: {fileID: 97984865820349618, guid: b19ca29ba4752c24cb56127fd6cdea46,
-        type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 13400000, guid: 709aaebc19021664f9fd2aec67aa02f5,
-        type: 2}
     - target: {fileID: 1634216429136670738, guid: b19ca29ba4752c24cb56127fd6cdea46,
         type: 3}
       propertyPath: m_Layer
@@ -22,26 +16,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TagString
       value: Item
-      objectReference: {fileID: 0}
-    - target: {fileID: 1883970144020189602, guid: b19ca29ba4752c24cb56127fd6cdea46,
-        type: 3}
-      propertyPath: m_Layer
-      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 2022715817385629157, guid: b19ca29ba4752c24cb56127fd6cdea46,
         type: 3}
       propertyPath: m_Name
       value: TNTModel
-      objectReference: {fileID: 0}
-    - target: {fileID: 2022715817385629157, guid: b19ca29ba4752c24cb56127fd6cdea46,
-        type: 3}
-      propertyPath: m_Layer
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 2022715817385629157, guid: b19ca29ba4752c24cb56127fd6cdea46,
-        type: 3}
-      propertyPath: m_TagString
-      value: Item
       objectReference: {fileID: 0}
     - target: {fileID: 4720240317186025069, guid: b19ca29ba4752c24cb56127fd6cdea46,
         type: 3}
@@ -97,26 +76,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6826140466975915665, guid: b19ca29ba4752c24cb56127fd6cdea46,
-        type: 3}
-      propertyPath: m_Layer
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 6972435194020269504, guid: b19ca29ba4752c24cb56127fd6cdea46,
-        type: 3}
-      propertyPath: m_Layer
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 6972435194020269504, guid: b19ca29ba4752c24cb56127fd6cdea46,
-        type: 3}
-      propertyPath: m_TagString
-      value: Item
-      objectReference: {fileID: 0}
-    - target: {fileID: 7461930786544780021, guid: b19ca29ba4752c24cb56127fd6cdea46,
-        type: 3}
-      propertyPath: m_Layer
-      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b19ca29ba4752c24cb56127fd6cdea46, type: 3}
@@ -209,13 +168,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: e2578c334a352b84d8e61641f970e3e2, type: 2}
   hander: {fileID: 0}
-  hintUse: Take
-  hintInHand: Start timer
-  hintDrop: Drop
   isTakeable: 1
   rigidBody: {fileID: 0}
   explodePrefab: {fileID: 5124319757671845759, guid: 63be8fd053acd094987a1d2bd803a8d4,
     type: 3}
+  explodeDistance: 6
   timerMax: 5
   destroyable: {fileID: 0}
 --- !u!4 &2647691629482790927 stripped

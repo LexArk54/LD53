@@ -15,7 +15,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4837732465901789836
 Transform:
   m_ObjectHideFlags: 0
@@ -266,9 +266,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: ecdc92a6130cc9543a5917cfcf833945, type: 2}
   hander: {fileID: 0}
-  hintUse: Use
-  hintInHand: 
-  hintDrop: 
   isTakeable: 0
   rigidBody: {fileID: 0}
   container: {fileID: 521256735958432275}

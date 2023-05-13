@@ -67,12 +67,6 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
-    - target: {fileID: 659331712862655561, guid: c1503bde64bb2b14eb389a82377e3465,
-        type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 13400000, guid: 34ebc1d9d8d8121409d58dec3689d18c,
-        type: 2}
     - target: {fileID: 1572925034023304110, guid: c1503bde64bb2b14eb389a82377e3465,
         type: 3}
       propertyPath: m_StaticEditorFlags
@@ -220,9 +214,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 60e72389905e70c459e786e8d5d602ca, type: 2}
   hander: {fileID: 0}
-  hintUse: Read
-  hintInHand: 
-  hintDrop: 
   isTakeable: 0
   rigidBody: {fileID: 0}
   text: 'Hellow

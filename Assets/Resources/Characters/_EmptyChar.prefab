@@ -74,7 +74,7 @@ GameObject:
   - component: {fileID: 4189745225923969030}
   m_Layer: 6
   m_Name: _EmptyChar
-  m_TagString: Actor
+  m_TagString: Interactive
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -125,11 +125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data: {fileID: 0}
   hander: {fileID: 0}
-  hintInHand: 
-  hintTake: 
   controller: {fileID: 0}
-  startPos: {x: 0, y: 0, z: 0}
-  startRot: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &4189745225923969030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,7 +148,7 @@ MonoBehaviour:
   sprintValue: 0
   sprintAir: 0
   speedAcceleration: 15
-  maxSpeedValue: 0.3
+  maxSpeedValue: 0.5
   crouchSpeed: 2
   runSpeed: 5
   sprintSpeed: 12
@@ -167,4 +163,4 @@ MonoBehaviour:
     m_Bits: 1025
   groundCheckDistance: 0.08
   slideLimit: 45
-  cauotTime: 0.2
+  cauotTime: 0.1

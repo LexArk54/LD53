@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Manager : MonoBehaviour {
 
-    public virtual void Awake() {
+    public virtual void Init() {
 
     }
 

@@ -5,13 +5,14 @@ using UnityEngine;
 public class TNT : Item {
 
     [SerializeField] GameObject explodePrefab;
+    [SerializeField] float explodeDistance = 5f;
     [SerializeField] float timerMax = 5f;
     float timer = -1f;
 
     [SerializeField] Transform destroyable;
 
-    public override void ResetItem() {
-        base.ResetItem();
+    public override void ResetObject() {
+        base.ResetObject();
         timer = -1f;
     }
 
@@ -33,10 +34,10 @@ public class TNT : Item {
         Destroy(explode, 3f);
         gameObject.SetActive(false);
         yield return new WaitForSeconds(.3f);
-        if (Vector3.Distance(destroyable.position, transform.position) < 5f) {
+        if (Vector3.Distance(transform.position, destroyable.position) < explodeDistance) {
             destroyable.gameObject.SetActive(false);
         }
-        ResetItem();
+        ResetObject();
     }
 
     private void FixedUpdate() {

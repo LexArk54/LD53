@@ -6,43 +6,59 @@ public class Fish : Item {
 
     [SerializeField] private FishRadar radar;
 
-    private List<Fish> additiveFishes = new List<Fish>();
+    [SerializeField] private List<Fish> additiveFishes = new List<Fish>();
 
-    public override void ResetItem() {
+    public override void ResetObject() {
         if (hander) {
             UIManager.main.SetFishCount(0);
         }
-        base.ResetItem();
-        additiveFishes.Clear();
+        base.ResetObject();
         radar.gameObject.SetActive(false);
+        additiveFishes.Clear();
     }
 
-    public override void OnUse(Character actor) {
-        base.OnUse(actor);
-        var fish = (Fish)actor.radar.GetNearest(ActorNames.Fish, CharacterRadar.HandState.NotInHand);
-        if (fish) {
-            actor.interact.PickupItem(fish);
-            return;
+    public void OnEated() {
+        if (hander && additiveFishes.Count > 0) {
+            var fish = additiveFishes[0];
+            OnDrop(hander);
+            fish.OnEated();
+        } else {
+            ResetObject();
         }
+    }
+
+    public override void OnUse(Character character) {
+        base.OnUse(character);
+        character.interact.PlaceItem();
+    }
+
+    protected override bool CanTake(Character actor) {
+        return base.CanTake(actor) || actor.interact.itemInHand.data.name == ActorNames.Fish;
     }
 
     public override Item OnTake(Character actor) {
         if (actor.interact.itemInHand && actor.interact.itemInHand.data.name == ActorNames.Fish) {
             var fishInHand = (Fish)actor.interact.itemInHand;
             fishInHand.additiveFishes.Add(this);
-            UIManager.main.SetFishCount(fishInHand.additiveFishes.Count + 1);
-            hander = actor;
-            transform.SetParent(actor.model.armPoint);
-            transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.identity;
             gameObject.SetActive(false);
+            fishInHand.AddFishesInCounter(actor);
+            UIManager.main.SetFishCount(fishInHand.additiveFishes.Count + 1);
             return null;
         } else {
-            UIManager.main.SetFishCount(1);
-            var fishInHand = (Fish)base.OnTake(actor);
-            fishInHand.radar.gameObject.SetActive(true);
-            fishInHand.additiveFishes.Clear();
-            return fishInHand;
+            base.OnTake(actor);
+            radar.gameObject.SetActive(true);
+            AddFishesInCounter(actor);
+            UIManager.main.SetFishCount(additiveFishes.Count + 1);
+            return this;
+        }
+    }
+
+    private void AddFishesInCounter(Character actor) {
+        var fish = (Fish)actor.radar.GetNearest(ActorNames.Fish, CharacterRadar.HandState.NotInHand);
+        while (fish != null) {
+            additiveFishes.Add(fish);
+            fish.gameObject.SetActive(false);
+            fish = (Fish)actor.radar.GetNearest(ActorNames.Fish, CharacterRadar.HandState.NotInHand);
         }
     }
 
@@ -52,10 +68,10 @@ public class Fish : Item {
             additiveFishes.RemoveAt(0);
             UIManager.main.SetFishCount(additiveFishes.Count + 1);
             fish.additiveFishes.Clear();
-            fish.transform.SetParent(null);
             fish.gameObject.SetActive(true);
-            fish.hander = null;
             fish.OnDrop(actor);
+            fish.transform.position = transform.position;
+            fish.transform.rotation = transform.rotation;
             return this;
         } else {
             if (hander) {

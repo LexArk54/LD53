@@ -10,15 +10,15 @@ public class DeathTrigger : MonoBehaviour {
 
     protected virtual void OnTriggerEnter(Collider other) {
         if (other.tag == Tag.Interactive) {
-            var actor = other.GetComponentInParent<Interactive>();
-            if (actor.data.type == InteractData.Type.Character) {
-                if (actor.isPlayer) {
-                    actor.GetComponent<PlayerController>().FallDeath();
+            var iobject = other.GetComponentInParent<Interactive>();
+            if (iobject.data.type == InteractData.Type.Character) {
+                if (iobject.isPlayer) {
+                    iobject.GetComponent<PlayerController>().FallDeath();
                 } else {
-                    actor.GetComponent<CharacterController>().ResetObject();
+                    iobject.ResetObject();
                 }
             } else {
-                actor.ResetObject();
+                iobject.ResetObject();
             }
         }
     }

@@ -67,6 +67,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: ModelPlayer
       objectReference: {fileID: 0}
+    - target: {fileID: 5692826980205061746, guid: 711f8e074ae2b9948b2ff7a1bfef8b0a,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5692826980205061746, guid: 711f8e074ae2b9948b2ff7a1bfef8b0a,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8022461752017801760, guid: 711f8e074ae2b9948b2ff7a1bfef8b0a,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.363
+      objectReference: {fileID: 0}
+    - target: {fileID: 8022461752017801760, guid: 711f8e074ae2b9948b2ff7a1bfef8b0a,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.15
+      objectReference: {fileID: 0}
     - target: {fileID: 8090135804393167467, guid: 711f8e074ae2b9948b2ff7a1bfef8b0a,
         type: 3}
       propertyPath: m_RootOrder
@@ -84,7 +104,7 @@ PrefabInstance:
     - target: {fileID: 4189745225923969030, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
       propertyPath: airSprintTime
-      value: 1.6
+      value: 1.7
       objectReference: {fileID: 0}
     - target: {fileID: 4189745225923969030, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
@@ -184,6 +204,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   character: {fileID: 0}
   itemInHand: {fileID: 0}
+  hoveredObject: {fileID: 0}
 --- !u!114 &6121718244264863112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200,7 +221,7 @@ MonoBehaviour:
   sensivityScroll: 0.05
   zoom: 6
   zoomMin: 0.5
-  zoomMax: 6
+  zoomMax: 7
   zoomSens: 10
   zoomDirection: {x: 0, y: 0.02, z: -1}
   allowFPV: 1

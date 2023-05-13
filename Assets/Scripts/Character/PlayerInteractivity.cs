@@ -7,7 +7,7 @@ public class PlayerInteractivity : CharacterComponent {
 
     public Interactive itemInHand;
 
-    private Interactive hoveredObject;
+    [SerializeField] private Interactive hoveredObject;
 
     public override void Init(Character character) {
         base.Init(character);
@@ -17,14 +17,13 @@ public class PlayerInteractivity : CharacterComponent {
         character.model.animator.SetBool("crabInHands", false);
         character.model.animator.ResetTrigger("PickUp");
         character.model.animator.ResetTrigger("PickDown");
+        character.model.animator.ResetTrigger("PickCrabUp");
+        character.model.animator.ResetTrigger("PickCrabDown");
         itemInHand = null;
     }
 
-    public Interactive GetCrabInHands() {
-        if (itemInHand && itemInHand.data.name == ActorNames.Crab) {
-            return itemInHand;
-        }
-        return null;
+    public bool crabIsInHands() {
+        return itemInHand && itemInHand.isCrab;
     }
 
     public void TakeItem(Item item) {
@@ -37,28 +36,54 @@ public class PlayerInteractivity : CharacterComponent {
         }
     }
 
-    public void DropItem() {
-        if (itemInHand == null) return;
+    public void DropItem(bool all) {
+        if (itemInHand == null || !(itemInHand is Item)) return;
         itemInHand = (itemInHand as Item).OnDrop(character);
         hoveredObject = itemInHand;
-    }
-    public void DropAllItems() {
-        while (itemInHand) {
-            DropItem();
+        if (all) {
+            DropItem(all);
         }
     }
 
-    public void PickupCrab(CrabController crab) {
+    public void TakeCrab(CrabController crab) {
         crab.SetInHands(character);
         itemInHand = crab.character;
+        character.movement.InputSpeedDebuff(true);
         character.model.animator.SetBool("crabInHands", true);
     }
 
+    public void PickupCrab(CrabController crab) {
+        StartCoroutine(_PickupCrab(crab));
+    }
+    IEnumerator _PickupCrab(CrabController crab) {
+        character.controller.Pause();
+        character.movement.InputDirection((crab.transform.position - transform.position).SetY());
+        character.model.animator.SetTrigger("PickCrabUp");
+        yield return new WaitForSeconds(.3f);
+        TakeCrab(crab);
+        yield return new WaitForSeconds(.8f);
+        character.controller.Play();
+    }
+
     public void DropCrab() {
-        if (itemInHand == null || itemInHand is Item) return;
+        if (itemInHand == null || itemInHand.data.type == InteractData.Type.Item) return;
         itemInHand.GetComponent<CrabController>().SetInHands(null);
         itemInHand = null;
+        character.movement.InputSpeedDebuff(false);
         character.model.animator.SetBool("crabInHands", false);
+    }
+    public void PlaceCrab() {
+        if (itemInHand == null || itemInHand.data.type == InteractData.Type.Item) return;
+        StartCoroutine(_PlaceCrab());
+    }
+    IEnumerator _PlaceCrab() {
+        character.controller.Pause();
+        character.model.animator.SetTrigger("PickCrabDown");
+        character.model.animator.SetBool("crabInHands", false);
+        yield return new WaitForSeconds(.8f);
+        DropCrab();
+        yield return new WaitForSeconds(.3f);
+        character.controller.Play();
     }
 
     private void UpdateHovered() {
@@ -67,16 +92,20 @@ public class PlayerInteractivity : CharacterComponent {
             hovered = null;
         } else {
             hovered = character.radar.GetNearest(InteractData.Type.All, CharacterRadar.HandState.NotInHand);
-            if (!hovered || !hovered.CanUse(character)) {
-                hovered = itemInHand;
+            if (!hovered || !hovered.CanInteract(character)) {
+                if (itemInHand && itemInHand.CanInteract(character)) {
+                    hovered = itemInHand;
+                } else {
+                    hovered = null;
+                }
             }
         }
         if (hoveredObject != hovered) {
             hoveredObject = hovered;
             if (hovered) {
-                UIManager.main.SetItemHint(hovered.GetHit());
+                UIManager.main.SetItemHint(hovered.GetHint());
             } else {
-                UIManager.main.SetItemHint("");
+                UIManager.main.SetItemHint(string.Empty);
             }
         }
     }
@@ -85,42 +114,24 @@ public class PlayerInteractivity : CharacterComponent {
         UpdateHovered();
     }
 
-    public void InputUse() {
+    public void InputInteract() {
         if (character.movement.isSprinting) return;
-        if (itemInHand) {
-            if (itemInHand.CanUse(character)) {
-                itemInHand.OnUse(character);
-            }
-            return;
-        }
         if (hoveredObject) {
-            if (hoveredObject is Item) {
-                var item = (Item)hoveredObject;
-                if (item.CanTake(character)) {
-                    PickupItem(item);
-                } else if (item.CanUse(character)) {
-                    item.OnUse(character);
-                }
-            } else {
-                var crab = hoveredObject.GetComponent<CrabController>();
-                if (crab) {
-                    PickupCrab(crab);
-                }
-            }
+            hoveredObject.Interact(character);
         }
     }
     public void InputDrop() {
         if (character.movement.isSprinting) return;
-        PlaceItem();
-        DropCrab();
+        PlaceItem(true);
+        PlaceCrab();
     }
 
     public void PickupItem(Item item) {
         StartCoroutine(_PickupItem(item));
     }
     IEnumerator _PickupItem(Item item) {
-        character.movement.InputDirection((item.transform.position - transform.position).SetY());
         character.controller.Pause();
+        character.movement.InputDirection((item.transform.position - transform.position).SetY());
         character.model.animator.SetTrigger("PickUp");
         yield return new WaitForSeconds(.5f);
         TakeItem(item);
@@ -128,16 +139,16 @@ public class PlayerInteractivity : CharacterComponent {
         character.controller.Play();
     }
 
-    public void PlaceItem() {
-        if (!itemInHand) return;
-        StartCoroutine(_PlaceItem());
+    public void PlaceItem(bool all = false) {
+        if (!itemInHand || itemInHand.data.type != InteractData.Type.Item) return;
+        StartCoroutine(_PlaceItem(all));
     }
-    IEnumerator _PlaceItem() {
+    IEnumerator _PlaceItem(bool all) {
         character.controller.Pause();
         character.model.animator.SetTrigger("PickDown");
-        yield return new WaitForSeconds(.5f);
-        DropItem();
-        yield return new WaitForSeconds(.6f);
+        yield return new WaitForSeconds(.4f);
+        DropItem(all);
+        yield return new WaitForSeconds(.7f);
         character.controller.Play();
     }
 

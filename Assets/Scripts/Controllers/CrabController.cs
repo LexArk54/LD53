@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CrabController : CharacterController {
+public class CrabController : ActorController {
 
-    public Item target;
+    public Fish target;
     public float targetDistance;
-
-    public Character hander;
 
     [Header("Показатели")]
     public float eating;
@@ -20,19 +18,26 @@ public class CrabController : CharacterController {
     public float eatingTime = 2f;
     public float eatDistance = 1f;
 
-    NavMeshPath path;
-
-    public override void ResetObject() {
+    public override void OnActorReseted() {
         eating = 0;
         isFollowing = false;
-        hander = null;
         target = null;
         StopEating();
         SetInHands(null);
-        base.ResetObject();
+        base.OnActorReseted();
+        character.hander = null;
     }
 
-    public void SetTarget(Item target) {
+    public override bool CanInteract(Character character) {
+        return character.interact.itemInHand == null;
+    }
+
+    public override void Interact(Character character) {
+        base.Interact(character);
+        character.interact.PickupCrab(this);
+    }
+
+    public void SetTarget(Fish target) {
         if (this.target == target) return;
         this.target = target;
         if (target) {
@@ -63,7 +68,7 @@ public class CrabController : CharacterController {
         character.model.animator.SetBool("isEating", false);
         if (target) {
             if (eating < 0) {
-                target.ResetItem();
+                target.OnEated();
                 SetTarget((Fish)character.radar.GetNearest(ActorNames.Fish));
             } else if (!target.hander) {
                 SetTarget(null);
@@ -80,21 +85,21 @@ public class CrabController : CharacterController {
             character.movement.enabled = false;
             character.movement.Stop();
             SetTarget(null);
-            this.hander = hander;
+            character.hander = hander;
             Update();
         } else {
-            if (this.hander) { 
-                Physics.IgnoreLayerCollision(gameObject.layer, this.hander.gameObject.layer, false); 
+            if (character.hander) {
+                Physics.IgnoreLayerCollision(gameObject.layer, character.hander.gameObject.layer, false);
             }
             character.movement.rigidBody.isKinematic = false;
             character.movement.enabled = true;
             character.movement.InputDirection(transform.forward);
-            this.hander = null;
+            character.hander = null;
         }
     }
 
     private void FixedUpdate() {
-        if (hander) return;
+        if (character.hander) return;
         if (target) {
             targetDistance = (target.transform.position - transform.position).SetY().magnitude;
         }
@@ -114,7 +119,7 @@ public class CrabController : CharacterController {
         if (target) {
             if (isFollowing) {
                 if (targetDistance > eatDistance) {
-                    character.movement.MoveTo(target.transform.position, false);
+                    character.movement.MoveTo(target.transform.position, true, false);
                 } else {
                     if (!isEating) {
                         StartEating();
@@ -130,9 +135,9 @@ public class CrabController : CharacterController {
     public Vector3 GetHandsOffset() { return transform.right * -.4f + Vector3.up * -.25f + transform.forward * -.2f; }
 
     public void Update() {
-        if (hander) {
-            transform.position = hander.model.armPoint.position + GetHandsOffset();
-            transform.rotation = hander.transform.rotation;
+        if (character.hander) {
+            transform.position = character.hander.model.armPoint.position + GetHandsOffset();
+            transform.rotation = character.hander.transform.rotation;
             return;
         }
     }

@@ -57,11 +57,9 @@ public class AudioManager : Manager {
         return Mathf.Log(value) * 20;
     }
 
-    public override void Awake() {
-        base.Awake();
-        if (this.InitializeSingleton(ref main)) {
-
-        }
+    public override void Init() {
+        base.Init();
+        main = this;
     }
 
     private void Start() {

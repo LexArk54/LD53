@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class InputManager : MonoBehaviour {
+public class InputManager : Manager {
 
 #if UNITY_EDITOR
     [ReadOnly] public InputActionAsset _settings;
@@ -13,8 +13,6 @@ public class InputManager : MonoBehaviour {
     private static InputSettings maps;
     public static InputSettings.PlayerActions Game => maps.Player;
     public static InputSettings.UIActions UI => maps.UI;
-
-    public static ControlMode mode = ControlMode.Game;
 
     public static float mouseSens;
 
@@ -35,17 +33,10 @@ public class InputManager : MonoBehaviour {
         mouseSens = slider.value;
     }
 
-    private void Awake() {
+    public override void Init() {
+        base.Init();
         if (maps != null) return;
         maps = new InputSettings();
-    }
-
-    private void OnEnable() {
-        if (mode == ControlMode.Game) {
-            ActivateGameMode();
-        } else {
-            ActivateUIMode();
-        }
     }
 
     private void OnDisable() {

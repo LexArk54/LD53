@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3332709503153355682}
   - component: {fileID: 5286495418699945029}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FootAudio
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -140,9 +140,9 @@ GameObject:
   - component: {fileID: 7719990897521972937}
   - component: {fileID: 3374439755775675343}
   - component: {fileID: 344705091455340844}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: _EmptyModel
-  m_TagString: Untagged
+  m_TagString: Interactive
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -194,6 +194,7 @@ MonoBehaviour:
   character: {fileID: 0}
   headPoint: {fileID: 2243673293065973121}
   armPoint: {fileID: 0}
+  sprintFoots: {fileID: 0}
 --- !u!1 &3206226011116137289
 GameObject:
   m_ObjectHideFlags: 0
@@ -203,7 +204,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2243673293065973121}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HeadPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -235,7 +236,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8877878907947824250}
   - component: {fileID: 1257320123563425779}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HeadAudio
   m_TagString: Untagged
   m_Icon: {fileID: 0}

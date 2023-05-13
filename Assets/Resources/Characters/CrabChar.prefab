@@ -130,7 +130,7 @@ PrefabInstance:
     - target: {fileID: 6613812049375100863, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
       propertyPath: hintTake
-      value: '[E] Take'
+      value: Take
       objectReference: {fileID: 0}
     - target: {fileID: 6613812049375100863, guid: 4638e1184b665f04a8ca3f6bfdc38be6,
         type: 3}
@@ -228,7 +228,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5f0340972da3ef43baf7614e73c2f20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actor: {fileID: 0}
+  character: {fileID: 0}
   target: {fileID: 0}
   targetDistance: 0
   hander: {fileID: 0}

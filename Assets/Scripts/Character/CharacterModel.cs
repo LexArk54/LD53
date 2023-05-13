@@ -22,12 +22,22 @@ public class CharacterModel : CharacterComponent {
     private Renderer[] renderers;
     private float prevAnimSpeed;
 
+    public GameObject sprintFootsContainer;
+
 
     public override void Init(Character actor) {
         base.Init(actor);
         animator = GetComponentInChildren<Animator>();
         renderers = GetComponentsInChildren<Renderer>();
         collider = GetComponent<Collider>();
+        StopSprint();
+    }
+
+    public void StartSprint() {
+        if (sprintFootsContainer) sprintFootsContainer.SetActive(true);
+    }
+    public void StopSprint() {
+        if (sprintFootsContainer) sprintFootsContainer.SetActive(false);
     }
 
     public void AnimationPause() {
